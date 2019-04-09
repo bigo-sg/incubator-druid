@@ -21,6 +21,7 @@ package io.druid.data.input.bigo;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -31,6 +32,7 @@ import io.druid.data.input.impl.InputRowParser;
 import io.druid.data.input.impl.MapInputRowParser;
 import io.druid.data.input.impl.ParseSpec;
 import io.druid.java.util.common.IAE;
+import io.druid.java.util.common.logger.Logger;
 import io.druid.java.util.common.parsers.ParseException;
 import io.druid.java.util.common.parsers.Parser;
 import org.apache.hadoop.io.BytesWritable;
@@ -51,6 +53,7 @@ import java.util.Map;
 
 public class BigoInputRowParser implements InputRowParser<Object>
 {
+  private static final Logger log = new Logger(BigoInputRowParser.class);
   private static final Charset DEFAULT_CHARSET = Charsets.UTF_8;
 
   private final ParseSpec parseSpec;
@@ -181,6 +184,8 @@ public class BigoInputRowParser implements InputRowParser<Object>
     }
 
     ObjectMapper objectMapper = new ObjectMapper();
+    objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS, true);
+    objectMapper.configure(JsonParser.Feature.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER, true);
     List<Map<String, Object>> returnValue = new ArrayList<>();
     try {
       JsonNode document = objectMapper.readValue(inputString, JsonNode.class);
@@ -190,14 +195,14 @@ public class BigoInputRowParser implements InputRowParser<Object>
         JsonNode node = elements.next();
         JsonNode documentCopy = document.deepCopy();
         ((ObjectNode) documentCopy).remove(flattenField);
-        ((ObjectNode) documentCopy).put(flattenField, node.toString());
+        ((ObjectNode) documentCopy).put(flattenField, node);
 
         Map<String, Object> oneReturn = parser.parseToMap(documentCopy.toString());
         returnValue.add(oneReturn);
       }
     }
     catch (Exception e) {
-      throw new ParseException(e, "Unable to parse row [%s]", inputString);  //不要直接抛异常，捕获就算了
+      log.error(e, "Unable to parse row [%s]", inputString);
     }
 
     return returnValue;
