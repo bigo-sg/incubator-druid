@@ -111,6 +111,8 @@
                                 <argument>io.druid.extensions:simple-client-sslcontext</argument>
                                 <argument>-c</argument>
                                 <argument>io.druid.extensions:druid-basic-security</argument>
+                                <argument>-c</argument>
+                                <argument>io.druid.extensions:druid-bigo-extensions</argument>
                                 <argument>${druid.distribution.pulldeps.opts}</argument>
                             </arguments>
                         </configuration>
@@ -130,6 +132,7 @@
                                 <argument>
                                     ${project.build.directory}/mysql-metadata-storage-${project.parent.version}.tar.gz
                                 </argument>
+                                <argument>--force-local</argument>
                                 <argument>mysql-metadata-storage</argument>
                             </arguments>
                         </configuration>
@@ -240,6 +243,8 @@
                                         <argument>io.druid.extensions.contrib:druid-time-min-max</argument>
                                         <argument>-c</argument>
                                         <argument>io.druid.extensions.contrib:druid-virtual-columns</argument>
+                                        <argument>-c</argument>
+                                        <argument>io.druid.extensions.contrib:druid-bigo-extensions</argument>
                                     </arguments>
                                 </configuration>
                             </execution>

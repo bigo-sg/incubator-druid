@@ -142,6 +142,7 @@
         <module>extensions-contrib/sqlserver-metadata-storage</module>
         <module>extensions-contrib/kafka-emitter</module>
         <module>extensions-contrib/redis-cache</module>
+        <module>extensions-contrib/bigo-extensions</module>
         <!-- distribution packaging -->
         <module>distribution</module>
     </modules>
@@ -938,50 +939,50 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>de.thetaphi</groupId>
-                <artifactId>forbiddenapis</artifactId>
-                <version>2.3</version>
-                <configuration>
-                    <bundledSignatures>
-                        <!--
-                          This will automatically choose the right
-                          signatures based on 'maven.compiler.target':
-                        -->
-                        <bundledSignature>jdk-unsafe</bundledSignature>
-                    </bundledSignatures>
-                    <signaturesFiles>
-                        <signaturesFile>${session.executionRootDirectory}/codestyle/joda-time-forbidden-apis.txt</signaturesFile>
-                        <signaturesFile>${session.executionRootDirectory}/codestyle/druid-forbidden-apis.txt</signaturesFile>
-                    </signaturesFiles>
-                    <excludes>
-                        <exclude>io/druid/java/util/common/DateTimes$UtcFormatter.class</exclude>
-                    </excludes>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>validate</id>
-                        <phase>validate</phase>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                        <configuration>
-                            <bundledSignatures>
-                                <!-- Check jdk-system-out only for production code, but not in test code -->
-                                <bundledSignature>jdk-unsafe</bundledSignature>
-                                <bundledSignature>jdk-system-out</bundledSignature>
-                            </bundledSignatures>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>testValidate</id>
-                        <phase>validate</phase>
-                        <goals>
-                            <goal>testCheck</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+            <!--<plugin>-->
+                <!--<groupId>de.thetaphi</groupId>-->
+                <!--<artifactId>forbiddenapis</artifactId>-->
+                <!--<version>2.3</version>-->
+                <!--<configuration>-->
+                    <!--<bundledSignatures>-->
+                        <!--&lt;!&ndash;-->
+                          <!--This will automatically choose the right-->
+                          <!--signatures based on 'maven.compiler.target':-->
+                        <!--&ndash;&gt;-->
+                        <!--<bundledSignature>jdk-unsafe</bundledSignature>-->
+                    <!--</bundledSignatures>-->
+                    <!--<signaturesFiles>-->
+                        <!--<signaturesFile>${session.executionRootDirectory}/codestyle/joda-time-forbidden-apis.txt</signaturesFile>-->
+                        <!--<signaturesFile>${session.executionRootDirectory}/codestyle/druid-forbidden-apis.txt</signaturesFile>-->
+                    <!--</signaturesFiles>-->
+                    <!--<excludes>-->
+                        <!--<exclude>io/druid/java/util/common/DateTimes$UtcFormatter.class</exclude>-->
+                    <!--</excludes>-->
+                <!--</configuration>-->
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<id>validate</id>-->
+                        <!--<phase>validate</phase>-->
+                        <!--<goals>-->
+                            <!--<goal>check</goal>-->
+                        <!--</goals>-->
+                        <!--<configuration>-->
+                            <!--<bundledSignatures>-->
+                                <!--&lt;!&ndash; Check jdk-system-out only for production code, but not in test code &ndash;&gt;-->
+                                <!--<bundledSignature>jdk-unsafe</bundledSignature>-->
+                                <!--<bundledSignature>jdk-system-out</bundledSignature>-->
+                            <!--</bundledSignatures>-->
+                        <!--</configuration>-->
+                    <!--</execution>-->
+                    <!--<execution>-->
+                        <!--<id>testValidate</id>-->
+                        <!--<phase>validate</phase>-->
+                        <!--<goals>-->
+                            <!--<goal>testCheck</goal>-->
+                        <!--</goals>-->
+                    <!--</execution>-->
+                <!--</executions>-->
+            <!--</plugin>-->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>animal-sniffer-maven-plugin</artifactId>
