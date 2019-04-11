@@ -203,6 +203,11 @@ public class BigoInputRowParser implements InputRowParser<Object>
     }
     catch (Exception e) {
       log.error(e, "Unable to parse row [%s]", inputString);
+      throw new ParseException(e, "Unable to parse row [%s]", inputString);
+    }
+
+    if (returnValue.size() == 0) {
+      returnValue.add(parser.parseToMap(inputString));
     }
 
     return returnValue;
