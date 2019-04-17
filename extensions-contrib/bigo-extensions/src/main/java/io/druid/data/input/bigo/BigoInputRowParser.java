@@ -61,23 +61,27 @@ public class BigoInputRowParser implements InputRowParser<Object>
   private final Charset charset;
   private final String flattenField;
   private final boolean flumeEventOrNot;
+  private final long badJsonTolThreshold;
 
 
   private Parser<String, Object> parser;
   private CharBuffer chars;
+  private long exJsonCount = 0;
 
   @JsonCreator
   public BigoInputRowParser(
           @JsonProperty("parseSpec") ParseSpec parseSpec,
           @JsonProperty("encoding") String encoding,
           @JsonProperty("flattenField") String flattenField,
-          @JsonProperty("flumeEventOrNot") boolean flumeEventOrNot
+          @JsonProperty("flumeEventOrNot") boolean flumeEventOrNot,
+          @JsonProperty("badJsonTolThreshold") long badJsonTolThreshold
   )
   {
     this.parseSpec = Preconditions.checkNotNull(parseSpec, "parseSpec");
     this.mapParser = new MapInputRowParser(parseSpec);
     this.flattenField = flattenField;
     this.flumeEventOrNot = flumeEventOrNot;
+    this.badJsonTolThreshold = badJsonTolThreshold;
 
     if (encoding != null) {
       this.charset = Charset.forName(encoding);
@@ -109,7 +113,7 @@ public class BigoInputRowParser implements InputRowParser<Object>
   @Override
   public InputRowParser withParseSpec(ParseSpec parseSpec)
   {
-    return new BigoInputRowParser(parseSpec, getEncoding(), flattenField, flumeEventOrNot);
+    return new BigoInputRowParser(parseSpec, getEncoding(), flattenField, flumeEventOrNot, badJsonTolThreshold);
   }
 
   private List<Map<String, Object>> buildStringKeyMap(Object input)
@@ -183,6 +187,7 @@ public class BigoInputRowParser implements InputRowParser<Object>
       inputString = "{\"rip\"" + inputString.split("\"rip\"")[1];
     }
 
+    boolean isBadJson = false;
     ObjectMapper objectMapper = new ObjectMapper();
     objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS, true);
     objectMapper.configure(JsonParser.Feature.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER, true);
@@ -202,11 +207,16 @@ public class BigoInputRowParser implements InputRowParser<Object>
       }
     }
     catch (Exception e) {
-      log.error(e, "Unable to parse row [%s]", inputString);
-      throw new ParseException(e, "Unable to parse row [%s]", inputString);
+      log.error(e, "## Unable to parse row [%s]", inputString);
+      exJsonCount++;
+      isBadJson = true;
+      if (exJsonCount > badJsonTolThreshold && badJsonTolThreshold != -1) {
+        log.error(e, "@@ Probrom json count is max than:[%d]", exJsonCount);
+        throw new ParseException(e, " $$ Unable to parse row [%s]！ Probrom json count is max than:[%s]", inputString, String.valueOf(exJsonCount));
+      }
     }
 
-    if (returnValue.size() == 0) {
+    if (returnValue.size() == 0 && !isBadJson) {
       returnValue.add(parser.parseToMap(inputString));
     }
 
