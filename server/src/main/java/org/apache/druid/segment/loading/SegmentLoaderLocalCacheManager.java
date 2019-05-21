@@ -33,6 +33,7 @@ import org.apache.druid.timeline.DataSegment;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -160,6 +161,7 @@ public class SegmentLoaderLocalCacheManager implements SegmentLoader
         StorageLocation loc = findStorageLocationIfLoaded(segment);
         String storageDir = DataSegmentPusher.getDefaultStorageDir(segment, false);
 
+
         if (loc == null) {
           loc = loadSegmentWithRetry(segment, storageDir);
         }
@@ -178,29 +180,6 @@ public class SegmentLoaderLocalCacheManager implements SegmentLoader
    */
   private StorageLocation loadSegmentWithRetry(DataSegment segment, String storageDirStr) throws SegmentLoadingException
   {
-    for (StorageLocation loc : locations) {
-      File storageDir = loc.reserve(storageDirStr, segment);
-      if (storageDir != null) {
-        try {
-          loadInLocationWithStartMarker(segment, storageDir);
-          return loc;
-        }
-        catch (SegmentLoadingException e) {
-          try {
-            log.makeAlert(
-                e,
-                "Failed to load segment in current location [%s], try next location if any",
-                loc.getPath().getAbsolutePath()
-            ).addData("location", loc.getPath().getAbsolutePath()).emit();
-          }
-          finally {
-            loc.removeSegmentDir(storageDir, segment);
-            cleanupCacheFiles(loc.getPath(), storageDir);
-          }
-        }
-      }
-    }
-    throw new SegmentLoadingException("Failed to load segment %s in all locations.", segment.getId());
   }
 
   private void loadInLocationWithStartMarker(DataSegment segment, File storageDir) throws SegmentLoadingException
