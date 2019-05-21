@@ -172,12 +172,9 @@
         <module>extensions-contrib/opentsdb-emitter</module>
         <module>extensions-contrib/materialized-view-maintenance</module>
         <module>extensions-contrib/materialized-view-selection</module>
-<<<<<<< HEAD
         <module>extensions-contrib/momentsketch</module>
         <module>extensions-contrib/moving-average-query</module>
-=======
         <module>extensions-contrib/bigo-extensions</module>
->>>>>>> 优化由于版本切换带来的版本间的少量差异，避免打包出现问题
         <!-- distribution packaging -->
         <module>distribution</module>
     </modules>
