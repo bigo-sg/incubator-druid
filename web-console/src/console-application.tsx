@@ -27,6 +27,7 @@ import { ExternalLink, HeaderActiveTab, HeaderBar, Loader } from './components';
 import { AppToaster } from './singletons/toaster';
 import { localStorageGet, LocalStorageKeys, QueryManager } from './utils';
 import { DRUID_DOCS_API, DRUID_DOCS_SQL } from './variables';
+
 import {
   DatasourcesView,
   HomeView,
@@ -36,6 +37,7 @@ import {
   SegmentsView,
   ServersView,
   TasksView,
+  CompactionView
 } from './views';
 
 import './console-application.scss';
@@ -293,6 +295,13 @@ export class ConsoleApplication extends React.PureComponent<
     );
   };
 
+   private wrappedCompactionView = () => {
+    return this.wrapInViewContainer(
+      'compaction',
+      <CompactionView/>,
+    );
+  };
+
   private wrappedServersView = () => {
     const { noSqlMode } = this.state;
     return this.wrapInViewContainer(
@@ -332,7 +341,7 @@ export class ConsoleApplication extends React.PureComponent<
             <Route path="/segments" component={this.wrappedSegmentsView} />
             <Route path="/tasks" component={this.wrappedTasksView} />
             <Route path="/servers" component={this.wrappedServersView} />
-
+            <Route path="/compaction" component={this.wrappedCompactionView} />
             <Route path="/lookups" component={this.wrappedLookupsView} />
             <Route component={this.wrappedHomeView} />
           </Switch>
