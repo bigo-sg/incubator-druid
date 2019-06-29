@@ -38,8 +38,8 @@ import { SegmentsView } from './views/segments-view';
 import { ServersView } from './views/servers-view';
 import { SqlView } from './views/sql-view';
 import { TasksView } from './views/tasks-view';
-
-import './console-application.scss';
+import { CompactionView } from './views/compaction-view';
+import "./console-application.scss";
 
 export interface ConsoleApplicationProps extends React.Props<any> {
   hideLegacy: boolean;
@@ -254,6 +254,7 @@ export class ConsoleApplication extends React.Component<ConsoleApplicationProps,
     return <HashRouter hashType="noslash">
       <div className="console-application">
         <Switch>
+<<<<<<< HEAD
           <Route path="/load-data" component={this.wrappedLoadDataView}/>
           <Route path="/query" component={this.wrappedSqlView}/>
           <Route path="/sql" component={this.wrappedSqlView}/>
@@ -265,6 +266,29 @@ export class ConsoleApplication extends React.Component<ConsoleApplicationProps,
 
           <Route path="/lookups" component={this.wrappedLookupsView}/>
           <Route component={this.wrappedHomeView}/>
+=======
+          <Route path="/datasources" component={() => {
+            return wrapInViewContainer('datasources', <DatasourcesView goToSql={this.goToSql} goToSegments={this.goToSegments}/>);
+          }} />
+          <Route path="/segments" component={() => {
+            return wrapInViewContainer('segments', <SegmentsView datasource={this.datasource} onlyUnavailable={this.onlyUnavailable} goToSql={this.goToSql}/>);
+          }} />
+          <Route path="/tasks" component={() => {
+            return wrapInViewContainer('tasks', <TasksView taskId={this.taskId} goToSql={this.goToSql} goToMiddleManager={this.goToMiddleManager}/>, true);
+          }} />
+          <Route path="/servers" component={() => {
+            return wrapInViewContainer('servers', <ServersView middleManager={this.middleManager} goToSql={this.goToSql} goToTask={this.goToTask}/>, true);
+          }} />
+          <Route path="/sql" component={() => {
+            return wrapInViewContainer('sql', <SqlView initSql={this.initSql}/>);
+          }} />
+          <Route path="/compaction" component={() => {
+             return wrapInViewContainer('compaction', <CompactionView />);
+          }} />
+          <Route component={() => {
+            return wrapInViewContainer(null, <HomeView/>)
+          }} />
+>>>>>>> 添加compaction展示模块
         </Switch>
       </div>
     </HashRouter>;
