@@ -749,18 +749,6 @@ export class TasksView extends React.Component<TasksViewProps, TasksViewState> {
 
       <ViewControlBar label="Tasks">
         <Label>Group by</Label>
-        <HTMLSelect
-          value={taskPageEntries}
-          onChange={(e: any) => {
-            this.setState({taskPageEntries: e.currentTarget.value}, () => {
-              this.runTask();
-            });
-          }}
-        >
-          {Object.entries(pageEntries).map(([k, v]) => (
-            <option key={k} value={k}>{v}</option>
-          ))}
-        </HTMLSelect>
         <ButtonGroup>
           <Button active={groupTasksBy === null} onClick={() => this.setState({ groupTasksBy: null })}>None</Button>
           <Button active={groupTasksBy === 'type'} onClick={() => this.setState({ groupTasksBy: 'type' })}>Type</Button>
@@ -789,6 +777,24 @@ export class TasksView extends React.Component<TasksViewProps, TasksViewState> {
           tableColumnsHidden={taskTableColumnSelectionHandler.hiddenColumns}
         />
       </ViewControlBar>
+        <Button
+          iconName={IconNames.PLUS}
+          text="Submit task"
+          onClick={() => this.setState({taskSpecDialogOpen: true})}
+        />
+        <HTMLSelect
+          value={taskPageEntries}
+          onChange={(e: any) => {
+            this.setState({taskPageEntries: e.currentTarget.value}, () => {
+              this.runTask();
+            });
+          }}
+        >
+          {Object.entries(pageEntries).map(([k, v]) => (
+            <option key={k} value={k}>{v}</option>
+          ))}
+        </HTMLSelect>
+      </div>
       {this.renderTaskTable()}
       {
         supervisorSpecDialogOpen &&
