@@ -569,18 +569,6 @@ export class TasksView extends React.Component<TasksViewProps, TasksViewState> {
       <div className="control-bar">
         <div className="control-label">Tasks</div>
         <Label>Group by</Label>
-        <HTMLSelect
-          value={taskPageEntries}
-          onChange={(e: any) => {
-            this.setState({taskPageEntries: e.currentTarget.value}, () => {
-              this.runTask();
-            });
-          }}
-        >
-          {Object.entries(pageEntries).map(([k, v]) => (
-            <option key={k} value={k}>{v}</option>
-          ))}
-        </HTMLSelect>
         <ButtonGroup>
           <Button className={classNames({'pt-active': groupTasksBy === null})}
                   onClick={() => this.setState({groupTasksBy: null})}>None</Button>
@@ -606,6 +594,18 @@ export class TasksView extends React.Component<TasksViewProps, TasksViewState> {
           text="Submit task"
           onClick={() => this.setState({taskSpecDialogOpen: true})}
         />
+        <HTMLSelect
+          value={taskPageEntries}
+          onChange={(e: any) => {
+            this.setState({taskPageEntries: e.currentTarget.value}, () => {
+              this.runTask();
+            });
+          }}
+        >
+          {Object.entries(pageEntries).map(([k, v]) => (
+            <option key={k} value={k}>{v}</option>
+          ))}
+        </HTMLSelect>
       </div>
       {this.renderTaskTable()}
       {supervisorSpecDialogOpen ? <SpecDialog
