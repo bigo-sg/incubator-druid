@@ -71,3 +71,13 @@ svg {
     }
   }
 }
+
+.pt-dark {
+  .pt-select {
+    select {
+      option {
+        color: #1B1A20;
+      }
+    }
+  }
+}
