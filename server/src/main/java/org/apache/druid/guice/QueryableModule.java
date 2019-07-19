@@ -64,6 +64,7 @@ public class QueryableModule implements DruidModule
     return Collections.singletonList(
         new SimpleModule("QueryableModule")
             .registerSubtypes(
+                KafkaRequestLoggerProvider.class,   // implement by jsq
                 EmittingRequestLoggerProvider.class,
                 FileRequestLoggerProvider.class,
                 LoggingRequestLoggerProvider.class,
