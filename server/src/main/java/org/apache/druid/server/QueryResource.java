@@ -233,7 +233,7 @@ public class QueryResource implements QueryCountStatsProvider
                     finally {
                       Thread.currentThread().setName(currThreadName);
 
-                      queryLifecycle.emitLogsAndMetrics(e, req.getRemoteAddr(), os.getCount(), req.getRemoteUser(), other);
+                      queryLifecycle.emitLogsAndMetrics(e, req.getRemoteAddr(), os.getCount(), req.getHeader("User"), other);
 
                       if (e == null) {
                         successfulQueryCount.incrementAndGet();
