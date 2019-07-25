@@ -44,11 +44,13 @@ public class TimestampSpec
   private static final String DEFAULT_COLUMN = "timestamp";
   private static final String DEFAULT_FORMAT = "auto";
   private static final DateTime DEFAULT_MISSING_VALUE = null;
+  private static final String DEFAULT_HOUROFFSET_VALUE = "0";
 
   private final String timestampColumn;
   private final String timestampFormat;
   // this value should never be set for production data; the data loader uses it before a timestamp column is chosen
   private final DateTime missingValue;
+  private final String hourOffset;
   /** This field is a derivative of {@link #timestampFormat}; not checked in {@link #equals} and {@link #hashCode} */
   private final Function<Object, DateTime> timestampConverter;
 
@@ -60,7 +62,8 @@ public class TimestampSpec
       @JsonProperty("column") String timestampColumn,
       @JsonProperty("format") String format,
       // this value should never be set for production data; the data loader uses it before a timestamp column is chosen
-      @JsonProperty("missingValue") DateTime missingValue
+      @JsonProperty("missingValue") DateTime missingValue,
+      @JsonProperty("hourOffset") String hourOffset
   )
   {
     this.timestampColumn = (timestampColumn == null) ? DEFAULT_COLUMN : timestampColumn;
@@ -69,6 +72,7 @@ public class TimestampSpec
     this.missingValue = missingValue == null
                         ? DEFAULT_MISSING_VALUE
                         : missingValue;
+    this.hourOffset = (hourOffset == null) ? DEFAULT_HOUROFFSET_VALUE : hourOffset;
   }
 
   @JsonProperty("column")
@@ -109,6 +113,13 @@ public class TimestampSpec
         newCtx.lastDateTime = extracted;
         PARSE_CTX.set(newCtx);
       }
+    }
+    if (hourOffset.startsWith("+")) {
+      extracted.plus(Integer.valueOf(hourOffset.substring(1)));
+    } else if (hourOffset.startsWith("-")) {
+      extracted.minus(Integer.valueOf(hourOffset.substring(1)));
+    } else {
+      extracted.plus(Integer.valueOf(hourOffset));
     }
     return extracted;
   }
