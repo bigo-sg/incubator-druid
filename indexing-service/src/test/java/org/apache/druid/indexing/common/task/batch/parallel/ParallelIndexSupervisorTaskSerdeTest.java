@@ -63,7 +63,8 @@ public class ParallelIndexSupervisorTaskSerdeTest
       new TimestampSpec(
           "ts",
           "auto",
-          null
+          null,
+              null
       ),
       new DimensionsSpec(
           DimensionsSpec.getDefaultSchemas(Arrays.asList("ts", "dim")),

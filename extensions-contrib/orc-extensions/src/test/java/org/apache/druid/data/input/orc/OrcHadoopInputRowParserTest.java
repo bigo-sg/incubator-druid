@@ -108,7 +108,8 @@ public class OrcHadoopInputRowParserTest
             new TimestampSpec(
                 "timestamp",
                 "auto",
-                null
+                null,
+                    null
             ),
             new DimensionsSpec(
                 ImmutableList.of(new StringDimensionSchema("col1"), new StringDimensionSchema("col2")),
@@ -130,7 +131,8 @@ public class OrcHadoopInputRowParserTest
         new TimestampSpec(
             "timestamp",
             "auto",
-            null
+            null,
+                null
         ),
         new DimensionsSpec(
             ImmutableList.of(new StringDimensionSchema("col1"), new StringDimensionSchema("col2")),
@@ -150,7 +152,7 @@ public class OrcHadoopInputRowParserTest
     final String typeString = "struct<timestamp:string,col1:string,col2:array<string>,col3:float,col4:bigint,col5:decimal,col6:array<string>,col7:map<string,string>>";
     final OrcHadoopInputRowParser parser = new OrcHadoopInputRowParser(
         new TimeAndDimsParseSpec(
-            new TimestampSpec("timestamp", "auto", null),
+            new TimestampSpec("timestamp", "auto", null, null),
             new DimensionsSpec(null, null, null)
         ),
         typeString,

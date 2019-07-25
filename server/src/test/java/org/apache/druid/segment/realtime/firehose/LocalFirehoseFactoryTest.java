@@ -75,7 +75,8 @@ public class LocalFirehoseFactoryTest
             new TimestampSpec(
                 "timestamp",
                 "auto",
-                null
+                null,
+                    null
             ),
             new DimensionsSpec(
                 DimensionsSpec.getDefaultSchemas(Arrays.asList("timestamp", "a")),

@@ -67,7 +67,8 @@ public class ParseSpecTest
         new TimestampSpec(
             "timestamp",
             "auto",
-            null
+            null,
+                null
         ),
         new DimensionsSpec(
             DimensionsSpec.getDefaultSchemas(Arrays.asList("a", "b", "a")),
@@ -90,7 +91,8 @@ public class ParseSpecTest
         new TimestampSpec(
             "timestamp",
             "auto",
-            null
+            null,
+                null
         ),
         new DimensionsSpec(
             DimensionsSpec.getDefaultSchemas(Arrays.asList("a", "B")),
@@ -113,7 +115,8 @@ public class ParseSpecTest
         new TimestampSpec(
             "timestamp",
             "auto",
-            null
+            null,
+                null
         ),
         new DimensionsSpec(
             DimensionsSpec.getDefaultSchemas(Collections.singletonList("a")),
@@ -159,7 +162,8 @@ public class ParseSpecTest
         new TimestampSpec(
             "timestamp",
             "auto",
-            null
+            null,
+                null
         ),
         null,
         ",",
