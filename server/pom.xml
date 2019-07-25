@@ -291,6 +291,24 @@
                             <goal>test-jar</goal>
                         </goals>
                     </execution>
+
+                    <execution>
+                    <id>all</id>
+                    <goals>
+                        <goal>jar</goal>
+                    </goals>
+                    <phase>package</phase>
+                    <configuration>
+                        <classifier>all</classifier><!-- ***-all.jar -->
+                        <!-- 	<excludes>排除
+                                <exclude>**/model/**</exclude>
+                            </excludes>
+                            <includes>引入
+                                <include>**/impl/**</include>
+                            </includes> -->
+                    </configuration>
+                    </execution>
+
                 </executions>
             </plugin>
         </plugins>
