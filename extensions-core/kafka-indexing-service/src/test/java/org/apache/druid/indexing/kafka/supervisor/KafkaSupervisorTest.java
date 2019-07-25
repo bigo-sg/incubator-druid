@@ -3616,7 +3616,7 @@ public class KafkaSupervisorTest extends EasyMockSupport
         OBJECT_MAPPER.convertValue(
             new StringInputRowParser(
                 new JSONParseSpec(
-                    new TimestampSpec("timestamp", "iso", null),
+                    new TimestampSpec("timestamp", "iso", null, null),
                     new DimensionsSpec(
                         dimensions,
                         null,

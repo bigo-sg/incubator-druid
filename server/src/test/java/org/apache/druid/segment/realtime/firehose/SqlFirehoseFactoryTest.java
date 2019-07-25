@@ -69,10 +69,11 @@ public class SqlFirehoseFactoryTest
   public final TestDerbyConnector.DerbyConnectorRule derbyConnectorRule = new TestDerbyConnector.DerbyConnectorRule();
   private final ObjectMapper mapper = TestHelper.makeSmileMapper();
 
+
   private final InputRowParser parser = TransformSpec.NONE.decorate(
       new MapInputRowParser(
         new TimeAndDimsParseSpec(
-            new TimestampSpec("timestamp", "auto", null),
+            new TimestampSpec("timestamp", "auto", null ,null),
             new DimensionsSpec(
                 DimensionsSpec.getDefaultSchemas(Arrays.asList("timestamp", "a", "b")),
                 new ArrayList<>(),
@@ -81,6 +82,7 @@ public class SqlFirehoseFactoryTest
         )
       )
   );
+
   private TestDerbyConnector derbyConnector;
   private TestDerbyFirehoseConnector derbyFirehoseConnector;
 

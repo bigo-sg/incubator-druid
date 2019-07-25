@@ -119,7 +119,8 @@ public class IndexTaskTest extends IngestionTestBase
       new TimestampSpec(
           "ts",
           "auto",
-          null
+          null,
+              null
       ),
       new DimensionsSpec(
           DimensionsSpec.getDefaultSchemas(Arrays.asList("ts", "dim")),
@@ -596,7 +597,8 @@ public class IndexTaskTest extends IngestionTestBase
                 new TimestampSpec(
                     "time",
                     "auto",
-                    null
+                    null,
+                        null
                 ),
                 new DimensionsSpec(
                     null,
@@ -650,7 +652,8 @@ public class IndexTaskTest extends IngestionTestBase
                 new TimestampSpec(
                     "time",
                     "auto",
-                    null
+                    null,
+                        null
                 ),
                 new DimensionsSpec(
                     null,
@@ -867,7 +870,8 @@ public class IndexTaskTest extends IngestionTestBase
             new TimestampSpec(
                 "time",
                 "auto",
-                null
+                null,
+                    null
             ),
             new DimensionsSpec(
                 null,
@@ -922,7 +926,8 @@ public class IndexTaskTest extends IngestionTestBase
             new TimestampSpec(
                 "time",
                 "auto",
-                null
+                null,
+                    null
             ),
             new DimensionsSpec(
                 null,
@@ -1017,7 +1022,8 @@ public class IndexTaskTest extends IngestionTestBase
             new TimestampSpec(
                 "time",
                 "auto",
-                null
+                null,
+                    null
             ),
             new DimensionsSpec(
                 Arrays.asList(
@@ -1142,7 +1148,8 @@ public class IndexTaskTest extends IngestionTestBase
             new TimestampSpec(
                 "time",
                 "auto",
-                null
+                null,
+                    null
             ),
             new DimensionsSpec(
                 Arrays.asList(
@@ -1260,7 +1267,8 @@ public class IndexTaskTest extends IngestionTestBase
             new TimestampSpec(
                 "time",
                 "auto",
-                null
+                null,
+                    null
             ),
             new DimensionsSpec(
                 Arrays.asList(
@@ -1365,7 +1373,8 @@ public class IndexTaskTest extends IngestionTestBase
             new TimestampSpec(
                 "time",
                 "auto",
-                null
+                null,
+                    null
             ),
             new DimensionsSpec(
                 null,
@@ -1437,7 +1446,8 @@ public class IndexTaskTest extends IngestionTestBase
             new TimestampSpec(
                 "time",
                 "auto",
-                null
+                null,
+                    null
             ),
             new DimensionsSpec(
                 null,

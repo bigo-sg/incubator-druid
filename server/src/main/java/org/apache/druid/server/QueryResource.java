@@ -181,8 +181,6 @@ public class QueryResource implements QueryCountStatsProvider
     final ResourceIOReaderWriter ioReaderWriter = createResourceIOReaderWriter(acceptHeader, pretty != null);
     String other = req.getHeader("User-Agent");
 
-    final ResponseContext context = createContext(acceptHeader, pretty != null);
-
     final String currThreadName = Thread.currentThread().getName();
     try {
       queryLifecycle.initialize(readQuery(req, in, ioReaderWriter));
@@ -213,7 +211,7 @@ public class QueryResource implements QueryCountStatsProvider
       final ResponseContext responseContext = queryResponse.getResponseContext();
       final String prevEtag = getPreviousEtag(req);
 
-      if (prevEtag != null && prevEtag.equals(ResponseContext.Key.ETAG)) {
+      if (prevEtag != null && prevEtag.equals(responseContext.get(ResponseContext.Key.ETAG))) {
         queryLifecycle.emitLogsAndMetrics(null, req.getRemoteAddr(), -1,  req.getRemoteUser(), other);
         successfulQueryCount.incrementAndGet();
         return Response.notModified().build();

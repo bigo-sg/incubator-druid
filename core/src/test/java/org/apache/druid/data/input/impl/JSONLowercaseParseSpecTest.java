@@ -36,7 +36,8 @@ public class JSONLowercaseParseSpecTest
         new TimestampSpec(
             "timestamp",
             "auto",
-            null
+            null,
+                null
         ),
         new DimensionsSpec(
             DimensionsSpec.getDefaultSchemas(Arrays.asList("A", "B")),
