@@ -59,7 +59,7 @@ public class TimestampAggregatorFactory extends AggregatorFactory
     this.comparator = comparator;
     this.initValue = initValue;
 
-    this.timestampSpec = new TimestampSpec(fieldName, timeFormat, null);
+    this.timestampSpec = new TimestampSpec(fieldName, timeFormat, null, null);
   }
 
   @Override

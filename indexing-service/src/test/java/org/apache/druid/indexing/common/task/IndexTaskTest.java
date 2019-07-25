@@ -131,7 +131,8 @@ public class IndexTaskTest
       new TimestampSpec(
           "ts",
           "auto",
-          null
+          null,
+              null
       ),
       new DimensionsSpec(
           DimensionsSpec.getDefaultSchemas(Arrays.asList("ts", "dim")),
@@ -619,7 +620,8 @@ public class IndexTaskTest
                 new TimestampSpec(
                     "time",
                     "auto",
-                    null
+                    null,
+                        null
                 ),
                 new DimensionsSpec(
                     null,
@@ -671,7 +673,8 @@ public class IndexTaskTest
                 new TimestampSpec(
                     "time",
                     "auto",
-                    null
+                    null,
+                        null
                 ),
                 new DimensionsSpec(
                     null,
@@ -880,7 +883,8 @@ public class IndexTaskTest
             new TimestampSpec(
                 "time",
                 "auto",
-                null
+                null,
+                    null
             ),
             new DimensionsSpec(
                 null,
@@ -933,7 +937,8 @@ public class IndexTaskTest
             new TimestampSpec(
                 "time",
                 "auto",
-                null
+                null,
+                    null
             ),
             new DimensionsSpec(
                 null,
@@ -1021,7 +1026,8 @@ public class IndexTaskTest
             new TimestampSpec(
                 "time",
                 "auto",
-                null
+                null,
+                    null
             ),
             new DimensionsSpec(
                 Arrays.asList(
@@ -1143,7 +1149,8 @@ public class IndexTaskTest
             new TimestampSpec(
                 "time",
                 "auto",
-                null
+                null,
+                    null
             ),
             new DimensionsSpec(
                 Arrays.asList(
@@ -1258,7 +1265,8 @@ public class IndexTaskTest
             new TimestampSpec(
                 "time",
                 "auto",
-                null
+                null,
+                    null
             ),
             new DimensionsSpec(
                 Arrays.asList(
@@ -1361,7 +1369,8 @@ public class IndexTaskTest
             new TimestampSpec(
                 "time",
                 "auto",
-                null
+                null,
+                    null
             ),
             new DimensionsSpec(
                 null,
@@ -1431,7 +1440,8 @@ public class IndexTaskTest
             new TimestampSpec(
                 "time",
                 "auto",
-                null
+                null,
+                    null
             ),
             new DimensionsSpec(
                 null,

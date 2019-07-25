@@ -82,7 +82,8 @@ public class AbstractParallelIndexSupervisorTaskTest extends IngestionTestBase
       new TimestampSpec(
           "ts",
           "auto",
-          null
+          null,
+              null
       ),
       new DimensionsSpec(
           DimensionsSpec.getDefaultSchemas(Arrays.asList("ts", "dim")),
