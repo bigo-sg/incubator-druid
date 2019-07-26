@@ -114,14 +114,15 @@ public class TimestampSpec
         parseCtx.set(newCtx);
       }
     }
+    DateTime extractedHourOffset;
     if (hourOffset.startsWith("+")) {
-      extracted.plusHours(Integer.valueOf(hourOffset.substring(1)));
+      extractedHourOffset = extracted.plusHours(Integer.valueOf(hourOffset.substring(1)));
     } else if (hourOffset.startsWith("-")) {
-      extracted.minusHours(Integer.valueOf(hourOffset.substring(1)));
+      extractedHourOffset = extracted.minusHours(Integer.valueOf(hourOffset.substring(1)));
     } else {
-      extracted.plusHours(Integer.valueOf(hourOffset));
+      extractedHourOffset = extracted.plusHours(Integer.valueOf(hourOffset));
     }
-    return extracted;
+    return extractedHourOffset;
   }
 
   @Override
