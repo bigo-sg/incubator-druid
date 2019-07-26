@@ -115,11 +115,11 @@ public class TimestampSpec
       }
     }
     if (hourOffset.startsWith("+")) {
-      extracted.plus(Integer.valueOf(hourOffset.substring(1)));
+      extracted.plusHours(Integer.valueOf(hourOffset.substring(1)));
     } else if (hourOffset.startsWith("-")) {
-      extracted.minus(Integer.valueOf(hourOffset.substring(1)));
+      extracted.minusHours(Integer.valueOf(hourOffset.substring(1)));
     } else {
-      extracted.plus(Integer.valueOf(hourOffset));
+      extracted.plusHours(Integer.valueOf(hourOffset));
     }
     return extracted;
   }
