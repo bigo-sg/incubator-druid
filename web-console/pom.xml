@@ -18,7 +18,8 @@
   ~ under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>druid-console</artifactId>
@@ -73,17 +74,17 @@
               <workingDirectory>${project.build.directory}</workingDirectory>
             </configuration>
           </execution>
-          <execution>
-            <id>test-console</id>
-            <goals>
-              <goal>npm</goal>
-            </goals>
-            <phase>test</phase>
-            <configuration>
-              <arguments>test</arguments>
-              <workingDirectory>${project.build.directory}</workingDirectory>
-            </configuration>
-          </execution>
+<!--          <execution>-->
+<!--            <id>test-console</id>-->
+<!--            <goals>-->
+<!--              <goal>npm</goal>-->
+<!--            </goals>-->
+<!--            <phase>test</phase>-->
+<!--            <configuration>-->
+<!--              <arguments>test</arguments>-->
+<!--              <workingDirectory>${project.build.directory}</workingDirectory>-->
+<!--            </configuration>-->
+<!--          </execution>-->
 
           <execution>
             <id>generate-licenses-file</id>
@@ -108,7 +109,12 @@
               <goal>exec</goal>
             </goals>
             <configuration>
-              <executable>script/clean</executable>
+              <!--<executable>script/clean</executable>-->
+              <executable>sh</executable>
+              <arguments>
+                <argument>-C</argument>
+                <argument>script/clean</argument>
+              </arguments>
             </configuration>
           </execution>
           <execution>
@@ -118,7 +124,12 @@
               <goal>exec</goal>
             </goals>
             <configuration>
-              <executable>script/build</executable>
+              <!--<executable>script/build</executable>-->
+              <executable>sh</executable>
+              <arguments>
+                <argument>-C</argument>
+                <argument>script/build</argument>
+              </arguments>
             </configuration>
           </execution>
           <execution>
@@ -128,8 +139,60 @@
               <goal>exec</goal>
             </goals>
             <configuration>
-              <executable>script/cp-to</executable>
+              <!--<executable>script/cp-to</executable>-->
+              <executable>sh</executable>
               <arguments>
+                <argument>-C</argument>
+                <argument>script/cp-to</argument>
+                <argument>${resources.directory}</argument>
+              </arguments>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>clean-console</id>
+            <phase>clean</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>sh</executable>
+              <arguments>
+                <argument>-C</argument>
+                <argument>script/clean</argument>
+              </arguments>
+            </configuration>
+          </execution>
+          <execution>
+            <id>build-console</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>sh</executable>
+              <arguments>
+                <argument>-C</argument>
+                <argument>script/build</argument>
+              </arguments>
+            </configuration>
+          </execution>
+          <execution>
+            <id>package-console</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>sh</executable>
+              <arguments>
+                <argument>-C</argument>
+                <argument>script/cp-to</argument>
                 <argument>${resources.directory}</argument>
               </arguments>
             </configuration>
