@@ -5,9 +5,9 @@ public/
 assets/
 lib/*.css
 
-coordinator-console/
-pages/
-index.html
+# coordinator-console/
+# pages/
+# index.html
 
 .tscache
 tscommand-*.tmp.txt
