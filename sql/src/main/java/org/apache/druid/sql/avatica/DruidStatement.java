@@ -326,7 +326,7 @@ public class DruidStatement implements Closeable
         // First close. Run the onClose function.
         try {
           onClose.run();
-          sqlLifecycle.emitLogsAndMetrics(t, null, -1);
+          sqlLifecycle.emitLogsAndMetrics(t, null, -1, null, null);
         }
         catch (Throwable t1) {
           t.addSuppressed(t1);
@@ -340,7 +340,7 @@ public class DruidStatement implements Closeable
       // First close. Run the onClose function.
       try {
         if (!(this.throwable instanceof ForbiddenException)) {
-          sqlLifecycle.emitLogsAndMetrics(this.throwable, null, -1);
+          sqlLifecycle.emitLogsAndMetrics(this.throwable, null, -1, null, null);
         }
         onClose.run();
       }

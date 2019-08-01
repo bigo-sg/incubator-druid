@@ -156,7 +156,7 @@ public class SqlResource
                   }
                   finally {
                     yielder.close();
-                    lifecycle.emitLogsAndMetrics(e, remoteAddr, os.getCount());
+                    lifecycle.emitLogsAndMetrics(e, remoteAddr, os.getCount(), req.getHeader("User"), req.getHeader("User-Agent"));
                   }
                 }
             )
@@ -174,7 +174,7 @@ public class SqlResource
     }
     catch (Exception e) {
       log.warn(e, "Failed to handle query: %s", sqlQuery);
-      lifecycle.emitLogsAndMetrics(e, remoteAddr, -1);
+      lifecycle.emitLogsAndMetrics(e, remoteAddr, -1, req.getHeader("User"), req.getHeader("User-Agent"));
 
       final Exception exceptionToReport;
 

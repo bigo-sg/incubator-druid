@@ -168,7 +168,6 @@ public class QueryResource implements QueryCountStatsProvider
       acceptHeader = req.getContentType();
     }
 
-    String other = req.getHeader("User-Agent");
 
     final ResponseContext context = createContext(acceptHeader, pretty != null);
 
@@ -195,7 +194,7 @@ public class QueryResource implements QueryCountStatsProvider
       final String prevEtag = getPreviousEtag(req);
 
       if (prevEtag != null && prevEtag.equals(responseContext.get(HEADER_ETAG))) {
-        queryLifecycle.emitLogsAndMetrics(null, req.getRemoteAddr(), -1,  req.getRemoteUser(), other);
+        queryLifecycle.emitLogsAndMetrics(null, req.getRemoteAddr(), -1,  req.getRemoteUser(), req.getHeader("User-Agent"));
         successfulQueryCount.incrementAndGet();
         return Response.notModified().build();
       }
@@ -233,7 +232,7 @@ public class QueryResource implements QueryCountStatsProvider
                     finally {
                       Thread.currentThread().setName(currThreadName);
 
-                      queryLifecycle.emitLogsAndMetrics(e, req.getRemoteAddr(), os.getCount(), req.getHeader("User"), other);
+                      queryLifecycle.emitLogsAndMetrics(e, req.getRemoteAddr(), os.getCount(), req.getHeader("User"), req.getHeader("User-Agent"));
 
                       if (e == null) {
                         successfulQueryCount.incrementAndGet();
@@ -279,7 +278,7 @@ public class QueryResource implements QueryCountStatsProvider
     }
     catch (QueryInterruptedException e) {
       interruptedQueryCount.incrementAndGet();
-      queryLifecycle.emitLogsAndMetrics(e, req.getRemoteAddr(), -1, req.getRemoteUser(), other);
+      queryLifecycle.emitLogsAndMetrics(e, req.getRemoteAddr(), -1, req.getRemoteUser(), req.getHeader("User-Agent"));
       return context.gotError(e);
     }
     catch (ForbiddenException e) {
@@ -289,7 +288,7 @@ public class QueryResource implements QueryCountStatsProvider
     }
     catch (Exception e) {
       failedQueryCount.incrementAndGet();
-      queryLifecycle.emitLogsAndMetrics(e, req.getRemoteAddr(), -1, req.getRemoteUser(), other);
+      queryLifecycle.emitLogsAndMetrics(e, req.getRemoteAddr(), -1, req.getRemoteUser(), req.getHeader("User-Agent"));
 
       log.makeAlert(e, "Exception handling request")
          .addData("exception", e.toString())
