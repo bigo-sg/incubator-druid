@@ -25,15 +25,7 @@ import com.google.inject.Binder;
 import org.apache.druid.initialization.DruidModule;
 import org.apache.druid.query.DefaultQueryRunnerFactoryConglomerate;
 import org.apache.druid.query.QueryRunnerFactoryConglomerate;
-import org.apache.druid.server.log.ComposingRequestLoggerProvider;
-import org.apache.druid.server.log.EmittingRequestLoggerProvider;
-import org.apache.druid.server.log.FileRequestLoggerProvider;
-import org.apache.druid.server.log.FilteredRequestLoggerProvider;
-import org.apache.druid.server.log.LoggingRequestLoggerProvider;
-import org.apache.druid.server.log.NoopRequestLoggerProvider;
-import org.apache.druid.server.log.RequestLogger;
-import org.apache.druid.server.log.RequestLoggerProvider;
-import org.apache.druid.server.log.SwitchingRequestLoggerProvider;
+import org.apache.druid.server.log.*;
 
 import java.util.Collections;
 import java.util.List;
