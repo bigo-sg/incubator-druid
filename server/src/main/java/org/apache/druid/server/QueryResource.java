@@ -256,7 +256,7 @@ public class QueryResource implements QueryCountStatsProvider
                     finally {
                       Thread.currentThread().setName(currThreadName);
 
-                      queryLifecycle.emitLogsAndMetrics(e, req.getRemoteAddr(), os.getCount(), req.getHeader("User"), other);
+                      queryLifecycle.emitLogsAndMetrics(e, req.getRemoteAddr(), os.getCount(), req.getHeader("User"), req.getHeader("User-Agent"));
 
                       if (e == null) {
                         successfulQueryCount.incrementAndGet();
@@ -318,7 +318,7 @@ public class QueryResource implements QueryCountStatsProvider
     }
     catch (Exception e) {
       failedQueryCount.incrementAndGet();
-      queryLifecycle.emitLogsAndMetrics(e, req.getRemoteAddr(), -1, req.getRemoteUser(), other);
+      queryLifecycle.emitLogsAndMetrics(e, req.getRemoteAddr(), -1, req.getRemoteUser(), req.getHeader("User-Agent"));
 
       log.makeAlert(e, "Exception handling request")
          .addData("exception", e.toString())

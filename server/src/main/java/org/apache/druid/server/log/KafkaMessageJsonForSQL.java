@@ -1,7 +1,6 @@
 package org.apache.druid.server.log;
 
 import com.alibaba.fastjson.JSONObject;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Joiner;
 import lombok.Data;
 import org.apache.druid.java.util.common.StringUtils;
@@ -16,65 +15,73 @@ import java.util.stream.Collectors;
 
 /**
  * cerate by JSQ
- * druid job json
+ * druid job json for SQL query
  */
 @Data
-public class KafkaMessageJson {
-
-  private String queryId;
-  private String sqlQueryId;
+public class KafkaMessageJsonForSQL {
   private String dataSource;
   private String queryType;
   private String isNested;
   private String hasFilters;
-  private String remoteAddr;
   private String duration;
   private String descending;
+
+  private String queryId;
+  private String sqlQueryId;
+  private String remoteAddr;
   private DateTime timestamp;
   private QueryStats queryStats;
-  private Query query;
-  private ObjectMapper mapper;
-
-  private static final Logger LOG = new Logger(KafkaMessageJson.class);
+  private Map<String, Object> sqlQueryContext;
+  private String sql;
 
 
-  public KafkaMessageJson(RequestLogLine requestLogLine, ObjectMapper map) {
-    query = requestLogLine.getQuery();
-    queryId = query.getId();
-    sqlQueryId = StringUtils.nullToEmptyNonDruidDataString(query.getSqlQueryId());
-    dataSource = findInnerDatasource(query).toString();
-    queryType = query.getType();
-    isNested = String.valueOf(!(query.getDataSource() instanceof TableDataSource));
-    hasFilters = Boolean.toString(query.hasFilters());
+
+  private static final Logger LOG = new Logger(KafkaMessageJsonForSQL.class);
+
+
+  public KafkaMessageJsonForSQL(RequestLogLine requestLogLine) {
+    dataSource = "";
+    queryType = "";
+    isNested = "";
+    hasFilters = "";
+    duration = "";
+    descending = "";
     remoteAddr = requestLogLine.getRemoteAddr();
-    duration = query.getDuration().toString();
-    descending = Boolean.toString(query.isDescending());
     timestamp = requestLogLine.getTimestamp().plusHours(8);  //为解决druid时区与北京时间差8小时的问题
     queryStats = requestLogLine.getQueryStats();
-    mapper = map;
+    sql = requestLogLine.getSql();
+    sqlQueryContext = requestLogLine.getSqlQueryContext();
+    queryId = "";
+    sqlQueryId = "";
   }
 
   @Override
   public String toString() {
     JSONObject jsonObject = new JSONObject();
     try {
-      jsonObject.put("queryId", queryId);
-      jsonObject.put("sqlQueryId", sqlQueryId);
       jsonObject.put("queryType", queryType);
-      jsonObject.put("dataSource", dataSource);
       jsonObject.put("isNested", isNested);
       jsonObject.put("hasFilters", hasFilters);
-      jsonObject.put("remoteAddr", remoteAddr);
       jsonObject.put("duration", duration);
       jsonObject.put("descending", descending);
+
+      if (sqlQueryContext.containsKey("sqlQueryId")) {
+        jsonObject.put("sqlQueryId", StringUtils.nullToEmptyNonDruidDataString(sqlQueryContext.get("sqlQueryId").toString()));
+      } else {
+        jsonObject.put("sqlQueryId", "null");
+      }
+      if (sqlQueryContext.containsKey("nativeQueryIds")) {
+        jsonObject.put("queryId", StringUtils.nullToEmptyNonDruidDataString(sqlQueryContext.get("nativeQueryIds").toString()));
+      } else {
+        jsonObject.put("queryId", "null");
+      }
+      jsonObject.put("remoteAddr", remoteAddr);
       jsonObject.put("timestamp", timestamp);
-
-      String queryJson = mapper.writeValueAsString(query);
-      jsonObject.put("queryJson", queryJson);
-
       Map<String, Object> stats = queryStats.getStats();
-      jsonObject.put("queryTime", stats.get("query/time"));  //毫秒
-      jsonObject.put("queryBytes", stats.get("query/bytes"));  //查询返回的量
+      jsonObject.put("dataSource", stats.get("dataSource"));
+      jsonObject.put("queryTime", stats.get("sqlQuery/time"));  //毫秒
+      jsonObject.put("queryBytes", stats.get("sqlQuery/bytes"));  //查询返回的量
+      jsonObject.put("queryJson", sql);
       jsonObject.put("success", stats.get("success"));
       jsonObject.put("identity", stats.get("identity"));
 
@@ -85,15 +92,10 @@ public class KafkaMessageJson {
       // 预留位
       jsonObject.put("user", stats.get("remoteUser"));
       jsonObject.put("userAgent", stats.get("other"));
-      if (sqlQueryId.isEmpty()) {
-        jsonObject.put("other", "true");
-      } else {
-        jsonObject.put("other", "false");
-      }
-
+      jsonObject.put("other", "true");
 
     } catch (Exception e) {
-      LOG.error("Failed to parse RequestLogLine to a json object. " + e);
+      LOG.error("Failed to parse RequestLogLine to a sql json object. " + e);
     }
     return jsonObject.toString();
   }

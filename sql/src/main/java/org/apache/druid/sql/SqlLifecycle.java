@@ -64,7 +64,7 @@ import java.util.concurrent.TimeUnit;
  * <li>Planning ({@link #plan(HttpServletRequest)} or {@link #plan(AuthenticationResult)})</li>
  * <li>Authorization ({@link #authorize()})</li>
  * <li>Execution ({@link #execute()})</li>
- * <li>Logging ({@link #emitLogsAndMetrics(Throwable, String, long)})</li>
+ * <li>Logging ({@link #emitLogsAndMetrics(Throwable, String, long, String, String)})</li>
  * </ol>
  *
  * <p>Unlike QueryLifecycle, this class is designed to be <b>thread safe</b> so that it can be used in multi-threaded
@@ -245,7 +245,7 @@ public class SqlLifecycle
       result = execute();
     }
     catch (Throwable e) {
-      emitLogsAndMetrics(e, null, -1);
+      emitLogsAndMetrics(e, null, -1, null, null);
       throw e;
     }
 
@@ -254,7 +254,7 @@ public class SqlLifecycle
       @Override
       public void after(boolean isDone, Throwable thrown)
       {
-        emitLogsAndMetrics(thrown, null, -1);
+        emitLogsAndMetrics(thrown, null, -1, null, null);
       }
     });
   }
@@ -269,7 +269,9 @@ public class SqlLifecycle
   public void emitLogsAndMetrics(
       @Nullable final Throwable e,
       @Nullable final String remoteAddress,
-      final long bytesWritten
+      final long bytesWritten,
+      @Nullable final String remoteUser,
+      @Nullable final String other
   )
   {
     synchronized (lock) {
@@ -310,7 +312,11 @@ public class SqlLifecycle
         statsMap.put("context", queryContext);
         if (plannerContext != null) {
           statsMap.put("identity", plannerContext.getAuthenticationResult().getIdentity());
+          queryContext.put("sqlQueryId", plannerContext.getSqlQueryId());
           queryContext.put("nativeQueryIds", plannerContext.getNativeQueryIds().toString());
+        }
+        if (plannerResult != null) {
+          statsMap.put("dataSource", plannerResult.datasourceNames().toString());
         }
         if (e != null) {
           statsMap.put("exception", e.toString());
@@ -320,6 +326,9 @@ public class SqlLifecycle
             statsMap.put("reason", e.toString());
           }
         }
+
+        statsMap.put("remoteUser", StringUtils.nullToEmptyNonDruidDataString(remoteUser));
+        statsMap.put("other", StringUtils.nullToEmptyNonDruidDataString(other));
 
         requestLogger.logSqlQuery(
             RequestLogLine.forSql(

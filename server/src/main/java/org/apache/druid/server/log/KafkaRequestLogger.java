@@ -37,15 +37,19 @@ public class KafkaRequestLogger implements RequestLogger{
       KafkaMessageJson kafkaMessageJson = new KafkaMessageJson(requestLogLine, mapper);
       kafkaSinker.send(kafkaMessageJson.getQueryId(), kafkaMessageJson.toString());
     } catch (RuntimeException re) {
-      LOG.error(re, "Error sending druid job audit json to kafka");
+      LOG.error(re, "Error sending native druid job audit json to kafka");
     }
   }
 
   @Override
-  public void logSqlQuery(RequestLogLine requestLogLine)  throws IOException
+  public void logSqlQuery(RequestLogLine requestLogLine) throws IOException
   {
-    final String line = requestLogLine.getSqlQueryLine(mapper);
-    LOG.info("%s", line);
+    try {
+      KafkaMessageJsonForSQL kafkaMessageJsonForSQL = new KafkaMessageJsonForSQL(requestLogLine);
+      kafkaSinker.send(kafkaMessageJsonForSQL.getQueryId(), kafkaMessageJsonForSQL.toString());
+    } catch (RuntimeException re) {
+      LOG.error(re, "Error sending sql druid job audit json to kafka");
+    }
   }
 
   @LifecycleStart

@@ -1,4 +1,4 @@
-package org.apache.druid.guice;
+package org.apache.druid.server.log;
 
 import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -6,9 +6,6 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.druid.guice.annotations.Json;
 import org.apache.druid.java.util.common.logger.Logger;
-import org.apache.druid.server.log.KafkaRequestLogger;
-import org.apache.druid.server.log.RequestLogger;
-import org.apache.druid.server.log.RequestLoggerProvider;
 
 /**
  */
