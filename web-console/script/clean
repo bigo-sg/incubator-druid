@@ -19,8 +19,8 @@
 rm -rf \
   lib/*.css \
   node_modules \
-  coordinator-console \
-  pages \
+# coordinator-console \
+# pages \
   public \
   assets \
-  index.html
+# index.html
