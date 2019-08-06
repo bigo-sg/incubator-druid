@@ -141,6 +141,7 @@ public class SystemSchema extends AbstractSchema
       .add("is_available", ValueType.LONG)
       .add("is_realtime", ValueType.LONG)
       .add("is_overshadowed", ValueType.LONG)
+      .add("sday", ValueType.STRING)  //for group by day in 统计每天数据导入量
       .add("payload", ValueType.STRING)
       .build();
 
@@ -307,6 +308,7 @@ public class SystemSchema extends AbstractSchema
                   isAvailable,
                   isRealtime,
                   val.isOvershadowed() ? IS_OVERSHADOWED_TRUE : IS_OVERSHADOWED_FALSE,
+                  segment.getInterval().getStart().plusHours(8).toString().substring(0, 10),  //同时解决时区问题by jsq
                   jsonMapper.writeValueAsString(val)
               };
             }
@@ -341,6 +343,7 @@ public class SystemSchema extends AbstractSchema
                   IS_AVAILABLE_TRUE, // is_available is assumed to be always true for segments announced by historicals or realtime tasks
                   val.getValue().isRealtime(),
                   IS_OVERSHADOWED_FALSE, // there is an assumption here that unpublished segments are never overshadowed
+                  val.getKey().getInterval().getStart().plusHours(8).toString().substring(0, 10),   //同时解决时区问题by jsq
                   jsonMapper.writeValueAsString(val.getKey())
               };
             }
