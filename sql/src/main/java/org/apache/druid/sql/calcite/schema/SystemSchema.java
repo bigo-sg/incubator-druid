@@ -106,6 +106,7 @@ public class SystemSchema extends AbstractSchema
       .add("is_published", ValueType.LONG)
       .add("is_available", ValueType.LONG)
       .add("is_realtime", ValueType.LONG)
+      .add("sday", ValueType.STRING)  //for group by day in 统计每天数据导入量
       .add("payload", ValueType.STRING)
       .build();
 
@@ -262,6 +263,7 @@ public class SystemSchema extends AbstractSchema
                   1L, //is_published is true for published segments
                   isAvailable,
                   isRealtime,
+                  val.getInterval().getStart().plusHours(8).toString().substring(0, 10),  //同时解决时区问题by jsq
                   jsonMapper.writeValueAsString(val)
               };
             }
@@ -295,6 +297,7 @@ public class SystemSchema extends AbstractSchema
                   val.getValue().isPublished(),
                   val.getValue().isAvailable(),
                   val.getValue().isRealtime(),
+                  val.getKey().getInterval().getStart().plusHours(8).toString().substring(0, 10),   //同时解决时区问题by jsq
                   jsonMapper.writeValueAsString(val.getKey())
               };
             }

@@ -78,7 +78,11 @@ public class KafkaMessageJsonForSQL {
       jsonObject.put("remoteAddr", remoteAddr);
       jsonObject.put("timestamp", timestamp);
       Map<String, Object> stats = queryStats.getStats();
-      jsonObject.put("dataSource", stats.get("dataSource"));
+      String dataSource = stats.get("dataSource").toString();
+      if (dataSource.startsWith("[") && dataSource.endsWith("]")) {
+        dataSource = dataSource.substring(1, dataSource.length() - 1);
+      }
+      jsonObject.put("dataSource", dataSource);
       jsonObject.put("queryTime", stats.get("sqlQuery/time"));  //毫秒
       jsonObject.put("queryBytes", stats.get("sqlQuery/bytes"));  //查询返回的量
       jsonObject.put("queryJson", sql);
