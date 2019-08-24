@@ -154,7 +154,6 @@
         <module>extensions-core/druid-basic-security</module>
         <module>extensions-core/google-extensions</module>
         <!-- Community extensions -->
-        <module>extensions-contrib/bigo-extensions</module>
         <module>extensions-contrib/influx-extensions</module>
         <module>extensions-contrib/azure-extensions</module>
         <module>extensions-contrib/cassandra-storage</module>

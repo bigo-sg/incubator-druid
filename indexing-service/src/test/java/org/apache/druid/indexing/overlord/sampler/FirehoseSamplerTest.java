@@ -215,7 +215,7 @@ public class FirehoseSamplerTest
   {
     FirehoseFactory firehoseFactory = getFirehoseFactory(getTestRows());
 
-    ParseSpec parseSpec = getParseSpec(new TimestampSpec(null, null, DateTimes.of("1970")), new DimensionsSpec(null));
+    ParseSpec parseSpec = getParseSpec(new TimestampSpec(null, null, DateTimes.of("1970"), null), new DimensionsSpec(null));
     DataSchema dataSchema = new DataSchema("sampler", getParser(parseSpec), null, null, null, OBJECT_MAPPER);
 
     SamplerResponse response = firehoseSampler.sample(firehoseFactory, dataSchema, null);
@@ -269,7 +269,7 @@ public class FirehoseSamplerTest
   {
     FirehoseFactory firehoseFactory = getFirehoseFactory(getTestRows());
 
-    ParseSpec parseSpec = getParseSpec(new TimestampSpec("t", null, null), new DimensionsSpec(null));
+    ParseSpec parseSpec = getParseSpec(new TimestampSpec("t", null, null, null), new DimensionsSpec(null));
     DataSchema dataSchema = new DataSchema("sampler", getParser(parseSpec), null, null, null, OBJECT_MAPPER);
 
     SamplerResponse response = firehoseSampler.sample(firehoseFactory, dataSchema, null);
@@ -324,7 +324,7 @@ public class FirehoseSamplerTest
     FirehoseFactory firehoseFactory = getFirehoseFactory(getTestRows());
 
     ParseSpec parseSpec = getParseSpec(
-        new TimestampSpec("t", null, null),
+        new TimestampSpec("t", null, null, null),
         new DimensionsSpec(ImmutableList.of(
             StringDimensionSchema.create("dim1"),
             StringDimensionSchema.create("met1")
@@ -383,7 +383,7 @@ public class FirehoseSamplerTest
   {
     FirehoseFactory firehoseFactory = getFirehoseFactory(getTestRows());
 
-    ParseSpec parseSpec = getParseSpec(new TimestampSpec("t", null, null), new DimensionsSpec(null));
+    ParseSpec parseSpec = getParseSpec(new TimestampSpec("t", null, null, null), new DimensionsSpec(null));
     AggregatorFactory[] aggregatorFactories = {new LongSumAggregatorFactory("met1", "met1")};
     GranularitySpec granularitySpec = new UniformGranularitySpec(Granularities.DAY, Granularities.HOUR, false, null);
     DataSchema dataSchema = new DataSchema(
@@ -446,7 +446,7 @@ public class FirehoseSamplerTest
   {
     FirehoseFactory firehoseFactory = getFirehoseFactory(getTestRows());
 
-    ParseSpec parseSpec = getParseSpec(new TimestampSpec("t", null, null), new DimensionsSpec(null));
+    ParseSpec parseSpec = getParseSpec(new TimestampSpec("t", null, null, null), new DimensionsSpec(null));
     AggregatorFactory[] aggregatorFactories = {new LongSumAggregatorFactory("met1", "met1")};
     GranularitySpec granularitySpec = new UniformGranularitySpec(Granularities.DAY, Granularities.HOUR, true, null);
     DataSchema dataSchema = new DataSchema(
@@ -498,7 +498,7 @@ public class FirehoseSamplerTest
     FirehoseFactory firehoseFactory = getFirehoseFactory(getTestRows());
 
     ParseSpec parseSpec = getParseSpec(
-        new TimestampSpec("t", null, null),
+        new TimestampSpec("t", null, null, null),
         new DimensionsSpec(ImmutableList.of(StringDimensionSchema.create("dim1")))
     );
     AggregatorFactory[] aggregatorFactories = {new LongSumAggregatorFactory("met1", "met1")};
@@ -546,7 +546,7 @@ public class FirehoseSamplerTest
     FirehoseFactory firehoseFactory = getFirehoseFactory(getTestRows());
 
     ParseSpec parseSpec = getParseSpec(
-        new TimestampSpec("t", null, null),
+        new TimestampSpec("t", null, null, null),
         new DimensionsSpec(ImmutableList.of(StringDimensionSchema.create("dim1")))
     );
     AggregatorFactory[] aggregatorFactories = {new LongSumAggregatorFactory("met1", "met1")};
@@ -599,7 +599,7 @@ public class FirehoseSamplerTest
     FirehoseFactory firehoseFactory = getFirehoseFactory(getTestRows());
 
     ParseSpec parseSpec = getParseSpec(
-        new TimestampSpec("t", null, null),
+        new TimestampSpec("t", null, null, null),
         new DimensionsSpec(null)
     );
     AggregatorFactory[] aggregatorFactories = {new LongSumAggregatorFactory("met1", "met1")};
@@ -664,7 +664,7 @@ public class FirehoseSamplerTest
     FirehoseFactory firehoseFactory = getFirehoseFactory(getTestRows());
 
     ParseSpec parseSpec = getParseSpec(
-        new TimestampSpec("t", null, null),
+        new TimestampSpec("t", null, null, null),
         new DimensionsSpec(ImmutableList.of(StringDimensionSchema.create("dim1PlusBar")))
     );
     AggregatorFactory[] aggregatorFactories = {new LongSumAggregatorFactory("met1", "met1")};
@@ -717,7 +717,7 @@ public class FirehoseSamplerTest
     FirehoseFactory firehoseFactory = getFirehoseFactory(getTestRows());
 
     ParseSpec parseSpec = getParseSpec(
-        new TimestampSpec("t", null, null),
+        new TimestampSpec("t", null, null, null),
         new DimensionsSpec(null)
     );
     AggregatorFactory[] aggregatorFactories = {new LongSumAggregatorFactory("met1", "met1")};
