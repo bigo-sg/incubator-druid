@@ -63,7 +63,7 @@
               <goal>npm</goal>
             </goals>
             <configuration>
-              <arguments>ci</arguments>
+              <arguments>install</arguments>
               <installDirectory>${project.build.directory}</installDirectory>
             </configuration>
           </execution>
