@@ -74,7 +74,7 @@ public class FirehoseSampler
   // StringInputRowParser, while all the others expect InputRowParser.
   // ---------------------------
   private static final InputRowParser EMPTY_STRING_PARSER_SHIM = new StringInputRowParser(
-      new ParseSpec(new TimestampSpec(null, null, DateTimes.EPOCH), new DimensionsSpec(null))
+      new ParseSpec(new TimestampSpec(null, null, DateTimes.EPOCH, null), new DimensionsSpec(null))
       {
         @Override
         public Parser<String, Object> makeParser()

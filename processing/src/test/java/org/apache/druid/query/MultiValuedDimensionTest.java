@@ -168,7 +168,7 @@ public class MultiValuedDimensionTest
 
     StringInputRowParser parserNullSampler = new StringInputRowParser(
         new JSONParseSpec(
-            new TimestampSpec("time", "iso", null),
+            new TimestampSpec("time", "iso", null, null),
             new DimensionsSpec(DimensionsSpec.getDefaultSchemas(ImmutableList.of("product", "tags", "othertags")), null, null)
         ),
         "UTF-8"

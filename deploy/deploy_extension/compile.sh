@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-echo "compiling project druid 14"
+echo "compiling project druid 15"
 
 # packaging extensions-contrib/bigo-extensions
 cd ../../extensions-contrib/bigo-extensions
@@ -11,7 +11,7 @@ cd ../../
 mkdir -p distribution/target/bigo-extensions
 rm -rf distribution/target/bigo-extensions/*
 mkdir -p distribution/target/bigo-extensions/druid-bigo-extensions
-cp -f extensions-contrib/bigo-extensions/target/druid-bigo-extensions-0.14.2-incubating.jar \
+cp -f extensions-contrib/bigo-extensions/target/druid-bigo-extensions-0.15.1-incubating.jar \
     distribution/target/bigo-extensions/druid-bigo-extensions
 cd distribution/target/bigo-extensions/druid-bigo-extensions
 

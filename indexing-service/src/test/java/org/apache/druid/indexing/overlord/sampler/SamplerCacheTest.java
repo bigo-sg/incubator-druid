@@ -55,7 +55,7 @@ public class SamplerCacheTest
 
   private static final StringInputRowParser PARSER = new StringInputRowParser(
       new CSVParseSpec(
-          new TimestampSpec(null, null, DateTimes.of("1970")),
+          new TimestampSpec(null, null, DateTimes.of("1970"), null),
           new DimensionsSpec(null),
           null,
           ImmutableList.of("col"),

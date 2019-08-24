@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-echo "compiling project druid 14"
+echo "compiling project druid 15"
 cd ../../
 mvn clean install \
 -Papache-release,dist,rat,bundle-contrib-exts \
