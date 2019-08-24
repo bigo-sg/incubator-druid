@@ -18,21 +18,21 @@
 
 import axios from 'axios';
 import * as React from 'react';
-import ReactTable from "react-table";
-import {makeBooleanFilter, QueryManager} from "../utils";
-import "./compaction-view.scss";
+import ReactTable from 'react-table';
+import {makeBooleanFilter, QueryManager} from '../utils';
+import './compaction-view.scss';
 
 export interface CompactionViewProps extends React.Props<any> {}
 
 export interface CompactionExtraInfoType {
-  compactionTaskSlotRatio: string | number,
-  maxCompactionTaskSlots: string | number,
+  compactionTaskSlotRatio: string | number;
+  maxCompactionTaskSlots: string | number;
 }
 
 export interface CompactionViewState {
   compactionLoading: boolean;
   compaction: any[] | null;
-  compactionExtraInfo: CompactionExtraInfoType,
+  compactionExtraInfo: CompactionExtraInfoType;
   compactionError: string | null;
 }
 
@@ -47,16 +47,16 @@ export class CompactionView extends React.Component<CompactionViewProps, Compact
       compaction: null,
       compactionExtraInfo: {
         compactionTaskSlotRatio: 0,
-        maxCompactionTaskSlots: 0,
+        maxCompactionTaskSlots: 0
       },
-      compactionError: null,
+      compactionError: null
     };
   }
 
   componentDidMount(): void {
     this.compactionQueryManager = new QueryManager({
       processQuery: async (query: string) => {
-        const resp = await axios.get("/druid/coordinator/v1/config/compaction/");
+        const resp = await axios.get('/druid/coordinator/v1/config/compaction/');
         return resp.data;
       },
       onStateChange: ({ result, loading, error }) => {
@@ -66,7 +66,7 @@ export class CompactionView extends React.Component<CompactionViewProps, Compact
           compactionError: error,
           compactionExtraInfo: {
             compactionTaskSlotRatio: result ? result.compactionTaskSlotRatio : 0,
-            maxCompactionTaskSlots: result ? result.maxCompactionTaskSlots : 0,
+            maxCompactionTaskSlots: result ? result.maxCompactionTaskSlots : 0
           }
         });
       }
@@ -91,7 +91,7 @@ export class CompactionView extends React.Component<CompactionViewProps, Compact
           Header: 'DataSource',
           id: 'dataSource',
           width: 300,
-          accessor: (row) => String(row.dataSource),
+          accessor: (row) => String(row.dataSource)
         },
         {
           Header: 'KeepSegmentGranularity',
@@ -102,19 +102,19 @@ export class CompactionView extends React.Component<CompactionViewProps, Compact
         {
           Header: 'TaskPriority',
           id: 'taskPriority',
-          accessor: (row) => String(row.taskPriority),
+          accessor: (row) => String(row.taskPriority)
         },
         {
           Header: 'InputSegmentSizeBytes',
           id: 'inputSegmentSizeBytes',
           filterable: false,
-          accessor: (row) => String(row.inputSegmentSizeBytes),
+          accessor: (row) => String(row.inputSegmentSizeBytes)
         },
         {
           Header: 'TargetCompactionSizeBytes',
           id: 'targetCompactionSizeBytes',
           filterable: false,
-          accessor: (row) => String(row.targetCompactionSizeBytes),
+          accessor: (row) => String(row.targetCompactionSizeBytes)
         },
         {
           Header: 'MaxRowsPerSegment',
@@ -126,22 +126,22 @@ export class CompactionView extends React.Component<CompactionViewProps, Compact
           Header: 'MaxNumSegmentsToCompact',
           id: 'maxNumSegmentsToCompact',
           filterable: false,
-          accessor: (row) => String(row.maxNumSegmentsToCompact),
+          accessor: (row) => String(row.maxNumSegmentsToCompact)
         },
         {
           Header: 'SkipOffsetFromLatest',
           id: 'skipOffsetFromLatest',
-          accessor: (row) => String(row.skipOffsetFromLatest),
+          accessor: (row) => String(row.skipOffsetFromLatest)
         },
         {
           Header: 'TuningConfig',
           id: 'tuningConfig',
-          accessor: (row) => String(row.tuningConfig),
+          accessor: (row) => String(row.tuningConfig)
         },
         {
           Header: 'TaskContext',
           id: 'taskContext',
-          accessor: (row) => String(row.taskContext),
+          accessor: (row) => String(row.taskContext)
         }
       ]}
       defaultPageSize={50}
@@ -161,6 +161,6 @@ export class CompactionView extends React.Component<CompactionViewProps, Compact
         </div>
       </div>
       {this.renderCompactionTable()}
-    </div>
+    </div>;
   }
 }

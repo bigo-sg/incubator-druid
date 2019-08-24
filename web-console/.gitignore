@@ -16,3 +16,6 @@ lib/sql-docs.js
 tscommand-*.tmp.txt
 
 licenses.json
+
+pom.xml
+assets/

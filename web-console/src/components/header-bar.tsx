@@ -150,6 +150,8 @@ export class HeaderBar extends React.Component<HeaderBarProps, HeaderBarState> {
         <a href="#">
           {this.renderLogo()}
         </a>
+<<<<<<< HEAD
+
         <NavbarDivider/>
         <AnchorButton
           icon={IconNames.CLOUD_UPLOAD}
@@ -165,7 +167,8 @@ export class HeaderBar extends React.Component<HeaderBarProps, HeaderBarState> {
         <AnchorButton minimal active={active === 'segments'} icon={IconNames.STACKED_CHART} text="Segments" href="#segments" />
         <AnchorButton minimal active={active === 'tasks'} icon={IconNames.GANTT_CHART} text="Tasks" href="#tasks" />
         <AnchorButton minimal active={active === 'servers'} icon={IconNames.DATABASE} text="Data servers" href="#servers" />
-        <AnchorButton minimal active={active === 'compaction'} icon={IconNames.MULTI_SELECT} text="Compaction" href="#compaction" />
+        <AnchorButton minimal active={active === 'compaction'} icon={IconNames.DATABASE} text="Compaction" href="#compaction" />
+
         <NavbarDivider/>
         <AnchorButton minimal active={active === 'query'} icon={IconNames.APPLICATION} text="Query" href="#query" />
       </NavbarGroup>
