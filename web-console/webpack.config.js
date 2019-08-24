@@ -68,8 +68,8 @@ module.exports = (env) => {
               loader: 'tslint-loader',
               options: {
                 configFile: 'tslint.json',
-                emitErrors: true,
-                fix: false // Set this to true to auto fix errors
+                emitErrors: false,
+                fix: false // Set this header-barto true to auto fix errors
               }
             }
           ]

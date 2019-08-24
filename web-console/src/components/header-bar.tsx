@@ -150,7 +150,6 @@ export class HeaderBar extends React.Component<HeaderBarProps, HeaderBarState> {
         <a href="#">
           {this.renderLogo()}
         </a>
-<<<<<<< HEAD
 
         <NavbarDivider/>
         <AnchorButton
@@ -167,23 +166,10 @@ export class HeaderBar extends React.Component<HeaderBarProps, HeaderBarState> {
         <AnchorButton minimal active={active === 'segments'} icon={IconNames.STACKED_CHART} text="Segments" href="#segments" />
         <AnchorButton minimal active={active === 'tasks'} icon={IconNames.GANTT_CHART} text="Tasks" href="#tasks" />
         <AnchorButton minimal active={active === 'servers'} icon={IconNames.DATABASE} text="Data servers" href="#servers" />
+        <AnchorButton minimal active={active === 'compaction'} icon={IconNames.MULTI_SELECT} text="Compaction" href="#compaction" />
 
         <NavbarDivider/>
         <AnchorButton minimal active={active === 'query'} icon={IconNames.APPLICATION} text="Query" href="#query" />
-
-=======
-        <NavbarDivider />
-        <AnchorButton className={classNames(Classes.MINIMAL, { 'pt-active': active === 'datasources' })} iconName={IconNames.MULTI_SELECT} text="Datasources" href="#datasources" />
-        <AnchorButton className={classNames(Classes.MINIMAL, { 'pt-active': active === 'segments' })} iconName={IconNames.STACKED_CHART} text="Segments" href="#segments" />
-        <AnchorButton className={classNames(Classes.MINIMAL, { 'pt-active': active === 'tasks' })} iconName={IconNames.GANTT_CHART} text="Tasks" href="#tasks" />
-        <AnchorButton className={classNames(Classes.MINIMAL, { 'pt-active': active === 'servers' })} iconName={IconNames.DATABASE} text="Data servers" href="#servers" />
-        <AnchorButton className={classNames(Classes.MINIMAL, { 'pt-active': active === 'compaction' })} iconName={IconNames.MULTI_SELECT} text="Compaction" href="#compaction" />
-        <NavbarDivider />
-        <AnchorButton className={classNames(Classes.MINIMAL, { 'pt-active': active === 'sql' })} iconName={IconNames.APPLICATION} text="SQL" href="#sql" />
-        <Popover className="config-popover" content={configMenu} position={Position.BOTTOM_LEFT} inline>
-          <Button className={Classes.MINIMAL} iconName={IconNames.SETTINGS} text="Config"/>
-        </Popover>
->>>>>>> 添加compaction展示模块
       </NavbarGroup>
       <NavbarGroup align={Alignment.RIGHT}>
         {

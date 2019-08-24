@@ -14,3 +14,6 @@ lib/sql-function-doc.ts
 tscommand-*.tmp.txt
 
 licenses.json
+
+pom.xml
+assets/

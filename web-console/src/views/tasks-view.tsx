@@ -16,11 +16,10 @@
  * limitations under the License.
  */
 
-import { Alert, Button, ButtonGroup, Icon, Intent, Label, Menu, MenuDivider, MenuItem, Popover, Position, HTMLSelect } from '@blueprintjs/core';
+import { Alert, Button, ButtonGroup, Icon, Intent, Label, Menu, MenuItem, Popover, Position, HTMLSelect } from '@blueprintjs/core';
 import { IconNames } from '@blueprintjs/icons';
 import axios from 'axios';
 import * as React from 'react';
-
 import ReactTable from 'react-table';
 import { Filter } from 'react-table';
 
@@ -35,7 +34,6 @@ import { AppToaster } from '../singletons/toaster';
 import {
   addFilter,
   booleanCustomTableFilter,
-  countBy,
   formatDuration,
   getDruidErrorMessage, LocalStorageKeys,
   queryDruidSql,
@@ -70,8 +68,8 @@ export interface TasksViewState {
   tasksLoading: boolean;
   tasks: any[] | null;
   tasksError: string | null;
-  taskPageEntries: number,
   taskFilter: Filter[];
+  taskPageEntries: number,
   groupTasksBy: null | 'type' | 'datasource' | 'status';
 
   killTaskId: string | null;
@@ -106,18 +104,12 @@ interface SupervisorQueryResultRow {
 
 function statusToColor(status: string): string {
   switch (status) {
-    case 'RUNNING':
-      return '#2167d5';
-    case 'WAITING':
-      return '#d5631a';
-    case 'PENDING':
-      return '#ffbf00';
-    case 'SUCCESS':
-      return '#57d500';
-    case 'FAILED':
-      return '#d5100a';
-    default:
-      return '#0a1500';
+    case 'RUNNING': return '#2167d5';
+    case 'WAITING': return '#d5631a';
+    case 'PENDING': return '#ffbf00';
+    case 'SUCCESS': return '#57d500';
+    case 'FAILED': return '#d5100a';
+    default: return '#0a1500';
   }
 }
 
@@ -144,7 +136,7 @@ export class TasksView extends React.Component<TasksViewProps, TasksViewState> {
       tasks: null,
       tasksError: null,
       taskPageEntries: 100,
-      taskFilter: props.taskId ? [{id: 'task_id', value: props.taskId}] : [],
+      taskFilter: props.taskId ? [{ id: 'task_id', value: props.taskId }] : [],
       groupTasksBy: null,
 
       killTaskId: null,
@@ -192,7 +184,7 @@ export class TasksView extends React.Component<TasksViewProps, TasksViewState> {
         const resp = await axios.get('/druid/indexer/v1/supervisor?full');
         return resp.data;
       },
-      onStateChange: ({result, loading, error}) => {
+      onStateChange: ({ result, loading, error }) => {
         this.setState({
           supervisors: result,
           supervisorsLoading: loading,
@@ -216,7 +208,7 @@ export class TasksView extends React.Component<TasksViewProps, TasksViewState> {
           return [].concat.apply([], result);
         }
       },
-      onStateChange: ({result, loading, error}) => {
+      onStateChange: ({ result, loading, error }) => {
         this.setState({
           tasks: result,
           tasksLoading: loading,
@@ -246,7 +238,20 @@ export class TasksView extends React.Component<TasksViewProps, TasksViewState> {
       taskSpecDialogOpen: false,
       initSpec: null
     });
-  }
+  };
+
+  private runTask = () => {
+      this.taskQueryManager.runQuery(`SELECT
+    "task_id", "type", "datasource", "created_time",
+    CASE WHEN "status" = 'RUNNING' THEN "runner_status" ELSE "status" END AS "status",
+    CASE WHEN "status" = 'RUNNING' THEN
+     (CASE WHEN "runner_status" = 'RUNNING' THEN 4 WHEN "runner_status" = 'PENDING' THEN 3 ELSE 2 END)
+    ELSE 1 END AS "rank",
+    "location", "duration", "error_msg"
+      FROM sys.tasks
+      ORDER BY "rank" DESC, "created_time" DESC
+      LIMIT ` + this.state.taskPageEntries);
+  };
 
   private submitSupervisor = async (spec: JSON) => {
     try {
@@ -264,7 +269,7 @@ export class TasksView extends React.Component<TasksViewProps, TasksViewState> {
       intent: Intent.SUCCESS
     });
     this.supervisorQueryManager.rerunLastQuery();
-  }
+  };
 
   private submitTask = async (spec: JSON) => {
     try {
@@ -282,8 +287,7 @@ export class TasksView extends React.Component<TasksViewProps, TasksViewState> {
       intent: Intent.SUCCESS
     });
     this.taskQueryManager.rerunLastQuery();
-  }
-
+  };
 
   private getSupervisorActions(id: string, supervisorSuspended: boolean): BasicAction[] {
     return [
@@ -306,21 +310,8 @@ export class TasksView extends React.Component<TasksViewProps, TasksViewState> {
     ];
   }
 
-  private runTask = () => {
-    this.taskQueryManager.runQuery(`SELECT
-  "task_id", "type", "datasource", "created_time",
-  CASE WHEN "status" = 'RUNNING' THEN "runner_status" ELSE "status" END AS "status",
-  CASE WHEN "status" = 'RUNNING' THEN
-   (CASE WHEN "runner_status" = 'RUNNING' THEN 4 WHEN "runner_status" = 'PENDING' THEN 3 ELSE 2 END)
-  ELSE 1 END AS "rank",
-  "location", "duration", "error_msg"
-    FROM sys.tasks
-    ORDER BY "rank" DESC, "created_time" DESC
-    LIMIT ` + this.state.taskPageEntries);
-  };
-
   renderResumeSupervisorAction() {
-    const {resumeSupervisorId} = this.state;
+    const { resumeSupervisorId } = this.state;
 
     return <AsyncActionDialog
       action={
@@ -334,7 +325,7 @@ export class TasksView extends React.Component<TasksViewProps, TasksViewState> {
       failText="Could not resume supervisor"
       intent={Intent.PRIMARY}
       onClose={(success) => {
-        this.setState({resumeSupervisorId: null});
+        this.setState({ resumeSupervisorId: null });
         if (success) this.supervisorQueryManager.rerunLastQuery();
       }}
     >
@@ -345,7 +336,7 @@ export class TasksView extends React.Component<TasksViewProps, TasksViewState> {
   }
 
   renderSuspendSupervisorAction() {
-    const {suspendSupervisorId} = this.state;
+    const { suspendSupervisorId } = this.state;
 
     return <AsyncActionDialog
       action={
@@ -359,7 +350,7 @@ export class TasksView extends React.Component<TasksViewProps, TasksViewState> {
       failText="Could not suspend supervisor"
       intent={Intent.DANGER}
       onClose={(success) => {
-        this.setState({suspendSupervisorId: null});
+        this.setState({ suspendSupervisorId: null });
         if (success) this.supervisorQueryManager.rerunLastQuery();
       }}
     >
@@ -370,7 +361,7 @@ export class TasksView extends React.Component<TasksViewProps, TasksViewState> {
   }
 
   renderResetSupervisorAction() {
-    const {resetSupervisorId} = this.state;
+    const { resetSupervisorId } = this.state;
 
     return <AsyncActionDialog
       action={
@@ -384,7 +375,7 @@ export class TasksView extends React.Component<TasksViewProps, TasksViewState> {
       failText="Could not reset supervisor"
       intent={Intent.DANGER}
       onClose={(success) => {
-        this.setState({resetSupervisorId: null});
+        this.setState({ resetSupervisorId: null });
         if (success) this.supervisorQueryManager.rerunLastQuery();
       }}
     >
@@ -395,7 +386,7 @@ export class TasksView extends React.Component<TasksViewProps, TasksViewState> {
   }
 
   renderTerminateSupervisorAction() {
-    const {terminateSupervisorId} = this.state;
+    const { terminateSupervisorId } = this.state;
 
     return <AsyncActionDialog
       action={
@@ -409,7 +400,7 @@ export class TasksView extends React.Component<TasksViewProps, TasksViewState> {
       failText="Could not terminate supervisor"
       intent={Intent.DANGER}
       onClose={(success) => {
-        this.setState({terminateSupervisorId: null});
+        this.setState({ terminateSupervisorId: null });
         if (success) this.supervisorQueryManager.rerunLastQuery();
       }}
     >
@@ -444,9 +435,9 @@ export class TasksView extends React.Component<TasksViewProps, TasksViewState> {
             Header: 'Type',
             id: 'type',
             accessor: (row) => {
-              const {spec} = row;
+              const { spec } = row;
               if (!spec) return '';
-              const {tuningConfig} = spec;
+              const { tuningConfig } = spec;
               if (!tuningConfig) return '';
               return tuningConfig.type;
             },
@@ -456,9 +447,9 @@ export class TasksView extends React.Component<TasksViewProps, TasksViewState> {
             Header: 'Topic/Stream',
             id: 'topic',
             accessor: (row) => {
-              const {spec} = row;
+              const { spec } = row;
               if (!spec) return '';
-              const {ioConfig} = spec;
+              const { ioConfig } = spec;
               if (!ioConfig) return '';
               return ioConfig.topic || ioConfig.stream || '';
             },
@@ -522,6 +513,7 @@ export class TasksView extends React.Component<TasksViewProps, TasksViewState> {
     </>;
   }
 
+  // --------------------------------------
 
   private getTaskActions(id: string, status: string): BasicAction[] {
     if (status !== 'RUNNING' && status !== 'WAITING' && status !== 'PENDING') return [];
@@ -536,7 +528,7 @@ export class TasksView extends React.Component<TasksViewProps, TasksViewState> {
   }
 
   renderKillTaskAction() {
-    const {killTaskId} = this.state;
+    const { killTaskId } = this.state;
 
     return <AsyncActionDialog
       action={
@@ -550,7 +542,7 @@ export class TasksView extends React.Component<TasksViewProps, TasksViewState> {
       failText="Could not kill task"
       intent={Intent.DANGER}
       onClose={(success) => {
-        this.setState({killTaskId: null});
+        this.setState({ killTaskId: null });
         if (success) this.taskQueryManager.rerunLastQuery();
       }}
     >
@@ -573,7 +565,7 @@ export class TasksView extends React.Component<TasksViewProps, TasksViewState> {
         filterable
         filtered={taskFilter}
         onFilteredChange={(filtered, column) => {
-          this.setState({taskFilter: filtered});
+          this.setState({ taskFilter: filtered });
         }}
         defaultSorted={[{id: 'status', desc: true}]}
         pivotBy={groupTasksBy ? [groupTasksBy] : []}
@@ -617,7 +609,7 @@ export class TasksView extends React.Component<TasksViewProps, TasksViewState> {
             accessor: row => ({ status: row.status, created_time: row.created_time, toString: () => row.status }),
             Cell: row => {
               if (row.aggregated) return '';
-              const {status, location} = row.original;
+              const { status, location } = row.original;
               const locationHostname = location ? location.split(':')[0] : null;
               const errorMsg = row.original.error_msg;
               return <span>
@@ -700,10 +692,9 @@ export class TasksView extends React.Component<TasksViewProps, TasksViewState> {
   }
 
   render() {
-
     const { goToSql, goToLoadDataView, noSqlMode } = this.props;
-    const { groupTasksBy, supervisorSpecDialogOpen, taskSpecDialogOpen, alertErrorMsg, taskPageEntries,
-      taskTableActionDialogId, taskTableActionDialogActions, supervisorTableActionDialogId, supervisorTableActionDialogActions } = this.state;
+    const { groupTasksBy, taskPageEntries, supervisorSpecDialogOpen, taskSpecDialogOpen, alertErrorMsg, taskTableActionDialogId,
+      taskTableActionDialogActions, supervisorTableActionDialogId, supervisorTableActionDialogActions } = this.state;
     const { supervisorTableColumnSelectionHandler, taskTableColumnSelectionHandler } = this;
     const pageEntries = {
       100: '100',
@@ -713,7 +704,6 @@ export class TasksView extends React.Component<TasksViewProps, TasksViewState> {
       100000: '10w',
       500000: '50w'
     };
-
     const submitTaskMenu = <Menu>
       <MenuItem
         text="Raw JSON task"
@@ -735,7 +725,7 @@ export class TasksView extends React.Component<TasksViewProps, TasksViewState> {
         <Button
           icon={IconNames.PLUS}
           text="Submit supervisor"
-          onClick={() => this.setState({supervisorSpecDialogOpen: true})}
+          onClick={() => this.setState({ supervisorSpecDialogOpen: true })}
         />
         <TableColumnSelection
           columns={supervisorTableColumns}
@@ -776,12 +766,6 @@ export class TasksView extends React.Component<TasksViewProps, TasksViewState> {
           onChange={(column) => taskTableColumnSelectionHandler.changeTableColumnSelection(column)}
           tableColumnsHidden={taskTableColumnSelectionHandler.hiddenColumns}
         />
-      </ViewControlBar>
-        <Button
-          iconName={IconNames.PLUS}
-          text="Submit task"
-          onClick={() => this.setState({taskSpecDialogOpen: true})}
-        />
         <HTMLSelect
           value={taskPageEntries}
           onChange={(e: any) => {
@@ -794,7 +778,7 @@ export class TasksView extends React.Component<TasksViewProps, TasksViewState> {
             <option key={k} value={k}>{v}</option>
           ))}
         </HTMLSelect>
-      </div>
+      </ViewControlBar>
       {this.renderTaskTable()}
       {
         supervisorSpecDialogOpen &&
@@ -817,7 +801,7 @@ export class TasksView extends React.Component<TasksViewProps, TasksViewState> {
         intent={Intent.PRIMARY}
         isOpen={Boolean(alertErrorMsg)}
         confirmButtonText="OK"
-        onConfirm={() => this.setState({alertErrorMsg: null})}
+        onConfirm={() => this.setState({ alertErrorMsg: null })}
       >
         <p>{alertErrorMsg}</p>
       </Alert>
