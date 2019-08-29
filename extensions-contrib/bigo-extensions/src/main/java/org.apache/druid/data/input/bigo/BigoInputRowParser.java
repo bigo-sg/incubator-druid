@@ -54,11 +54,14 @@ public class BigoInputRowParser implements InputRowParser<Object>
 {
   private static final Logger log = new Logger(BigoInputRowParser.class);
   private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
+  private static final String DEFAULT_FLATTENFIELD = "NULLFIELD1";
+  private static final String DEFAULT_FLATTENFIELDINSIDE = "NULLFIELD2";
 
   private final ParseSpec parseSpec;
   private final MapInputRowParser mapParser;
   private final Charset charset;
   private final String flattenField;
+  private final String flattenFieldInside;
   private final boolean flumeEventOrNot;
   private final long badJsonTolThreshold;
 
@@ -72,13 +75,23 @@ public class BigoInputRowParser implements InputRowParser<Object>
           @JsonProperty("parseSpec") ParseSpec parseSpec,
           @JsonProperty("encoding") String encoding,
           @JsonProperty("flattenField") String flattenField,
+          @JsonProperty("flattenFieldInside") String flattenFieldInside,
           @JsonProperty("flumeEventOrNot") boolean flumeEventOrNot,
           @JsonProperty("badJsonTolThreshold") long badJsonTolThreshold
   )
   {
     this.parseSpec = Preconditions.checkNotNull(parseSpec, "parseSpec");
     this.mapParser = new MapInputRowParser(parseSpec);
-    this.flattenField = flattenField;
+    if (flattenField != null) {
+      this.flattenField = flattenField;
+    } else {
+      this.flattenField = DEFAULT_FLATTENFIELD;
+    }
+    if (flattenFieldInside != null) {
+      this.flattenFieldInside = flattenFieldInside;
+    } else {
+      this.flattenFieldInside = DEFAULT_FLATTENFIELDINSIDE;
+    }
     this.flumeEventOrNot = flumeEventOrNot;
     this.badJsonTolThreshold = badJsonTolThreshold;
 
@@ -112,7 +125,7 @@ public class BigoInputRowParser implements InputRowParser<Object>
   @Override
   public InputRowParser withParseSpec(ParseSpec parseSpec)
   {
-    return new BigoInputRowParser(parseSpec, getEncoding(), flattenField, flumeEventOrNot, badJsonTolThreshold);
+    return new BigoInputRowParser(parseSpec, getEncoding(), flattenField, flattenFieldInside, flumeEventOrNot, badJsonTolThreshold);
   }
 
   private List<Map<String, Object>> buildStringKeyMap(Object input)
@@ -191,8 +204,9 @@ public class BigoInputRowParser implements InputRowParser<Object>
     objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS, true);
     objectMapper.configure(JsonParser.Feature.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER, true);
     List<Map<String, Object>> returnValue = new ArrayList<>();
+    JsonNode document;
     try {
-      JsonNode document = objectMapper.readValue(inputString, JsonNode.class);
+      document = objectMapper.readValue(inputString, JsonNode.class);
       JsonNode flattenNode = document.findPath(flattenField);
       Iterator<JsonNode> elements = flattenNode.elements();
       while (elements.hasNext()) {
@@ -201,12 +215,29 @@ public class BigoInputRowParser implements InputRowParser<Object>
         ((ObjectNode) documentCopy).remove(flattenField);
         ((ObjectNode) documentCopy).put(flattenField, node);
 
-        Map<String, Object> oneReturn = parser.parseToMap(documentCopy.toString());
-        returnValue.add(oneReturn);
+        JsonNode flattenNodeInside = documentCopy.findPath(flattenFieldInside);
+        Iterator<JsonNode> elementsInside = flattenNodeInside.elements();
+        if (elementsInside.hasNext()) {
+          while (elementsInside.hasNext()) {
+            JsonNode nodeInside = elementsInside.next();
+            JsonNode documentCopyCopy = documentCopy.deepCopy();
+            JsonNode nodeCopy = node.deepCopy();
+            ((ObjectNode) nodeCopy).remove(flattenFieldInside);
+            ((ObjectNode) nodeCopy).put(flattenFieldInside, nodeInside);
+            ((ObjectNode) documentCopyCopy).remove(flattenField);
+            ((ObjectNode) documentCopyCopy).put(flattenField, nodeCopy);
+
+            Map<String, Object> oneReturn = parser.parseToMap(documentCopyCopy.toString());
+            returnValue.add(oneReturn);
+          }
+        } else {
+          Map<String, Object> oneReturn = parser.parseToMap(documentCopy.toString());
+          returnValue.add(oneReturn);
+        }
       }
     }
     catch (Exception e) {
-      log.error(e, "## Unable to parse row [%s]", inputString);
+      log.error(e, "## Unable to parse row: [%s]", inputString);
       exJsonCount++;
       isBadJson = true;
       if (exJsonCount > badJsonTolThreshold && badJsonTolThreshold != -1) {
