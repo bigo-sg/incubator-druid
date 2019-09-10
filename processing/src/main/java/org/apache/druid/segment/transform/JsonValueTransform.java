@@ -78,6 +78,11 @@ public class JsonValueTransform implements Transform
             if (rawValue != null && !StringUtils.endsWithIgnoreCase(rawValue.toString(), "NULL")) {
                 // {"a":"1","b":2,"c":{"d":{"g":{"h":3}}}, "e":null, "f":"null"}
                 String rawString = rawValue.toString();
+
+                if(StringUtils.isBlank(rawString)) {
+                    return null;
+                }
+
                 try {
                     JsonNode jsonNode = new ObjectMapper().readValue(rawString, JsonNode.class).findPath(key);
                     if (jsonNode.isNull()) {
@@ -89,7 +94,7 @@ public class JsonValueTransform implements Transform
                     log.warn(e,"get json value failed! rawString:%s.", rawString);
                     exJsonCount++;
                     if (exJsonCount > badJsonTolThreshold && badJsonTolThreshold != -1) {
-                        log.error(e, "@@ Probrom json count is max than:[%d]", exJsonCount);
+                        log.error(e, "@@ Probrom json count is max than:[%d]", badJsonTolThreshold);
                         throw new ParseException(e, " $$ Unable to parse row [%s]！ Probrom json count is max than:[%s]", rawString, String.valueOf(exJsonCount));
                     }
                 }
