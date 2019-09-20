@@ -30,15 +30,7 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
-import org.apache.druid.indexer.HadoopDruidDetermineConfigurationJob;
-import org.apache.druid.indexer.HadoopDruidIndexerConfig;
-import org.apache.druid.indexer.HadoopDruidIndexerJob;
-import org.apache.druid.indexer.HadoopIngestionSpec;
-import org.apache.druid.indexer.IngestionState;
-import org.apache.druid.indexer.MetadataStorageUpdaterJobHandler;
-import org.apache.druid.indexer.TaskMetricsGetter;
-import org.apache.druid.indexer.TaskMetricsUtils;
-import org.apache.druid.indexer.TaskStatus;
+import org.apache.druid.indexer.*;
 import org.apache.druid.indexing.common.IngestionStatsAndErrorsTaskReport;
 import org.apache.druid.indexing.common.IngestionStatsAndErrorsTaskReportData;
 import org.apache.druid.indexing.common.TaskLock;
@@ -52,6 +44,7 @@ import org.apache.druid.indexing.common.config.TaskConfig;
 import org.apache.druid.indexing.common.stats.RowIngestionMeters;
 import org.apache.druid.indexing.hadoop.OverlordActionBasedUsedSegmentLister;
 import org.apache.druid.java.util.common.DateTimes;
+import org.apache.druid.java.util.common.ISE;
 import org.apache.druid.java.util.common.JodaUtils;
 import org.apache.druid.java.util.common.StringUtils;
 import org.apache.druid.java.util.common.logger.Logger;
@@ -75,7 +68,6 @@ import javax.ws.rs.core.Response;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -373,6 +365,19 @@ public class HadoopIndexTask extends HadoopTask implements ChatHandler
 
     log.info("Setting version to: %s", version);
 
+    final String buildResult = invokeForeignLoader(
+            "org.apache.druid.indexing.common.task.HadoopIndexTask$HadoopBuildDictInnerProcessing",
+            new String[]{
+                    toolbox.getObjectMapper().writeValueAsString(indexerSchema),
+                    ZkConfigManager.getZkHosts(),
+                    ZkConfigManager.getBase()
+            },
+            loader
+    );
+    if (buildResult == null) {
+      throw new ISE("Build Dict failed");
+    }
+
     Object innerProcessingRunner = getForeignClassloaderObject(
         "org.apache.druid.indexing.common.task.HadoopIndexTask$HadoopIndexGeneratorInnerProcessingRunner",
         loader
@@ -528,7 +533,7 @@ public class HadoopIndexTask extends HadoopTask implements ChatHandler
 
   public static class InnerProcessingStatsGetter implements TaskMetricsGetter
   {
-    public static final List<String> KEYS = Arrays.asList(
+    public static final List<String> KEYS = ImmutableList.of(
         TaskMetricsUtils.ROWS_PROCESSED,
         TaskMetricsUtils.ROWS_PROCESSED_WITH_ERRORS,
         TaskMetricsUtils.ROWS_THROWN_AWAY,
@@ -810,6 +815,36 @@ public class HadoopIndexTask extends HadoopTask implements ChatHandler
     public String getErrorMsg()
     {
       return errorMsg;
+    }
+  }
+
+  /** Called indirectly in {@link HadoopIndexTask#run(TaskToolbox)}. */
+  @SuppressWarnings("unused")
+  public static class HadoopBuildDictInnerProcessing
+  {
+    public static String runTask(String[] args) throws Exception
+    {
+      final String schema = args[0];
+      final String zkHosts = args[1];
+      final String zkBase = args[2];
+
+      final HadoopIngestionSpec theSchema = HadoopDruidIndexerConfig.JSON_MAPPER
+              .readValue(
+                      schema,
+                      HadoopIngestionSpec.class
+              );
+      final HadoopDruidIndexerConfig config = HadoopDruidIndexerConfig.fromSpec(
+              theSchema
+      );
+
+      Jobby job = new HadoopDruidBuildDictJob(config, zkHosts, zkBase);
+
+      log.info("Starting a hadoop build dict job...");
+      if (job.run()) {
+        return "succ";
+      }
+
+      return null;
     }
   }
 }

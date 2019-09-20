@@ -71,20 +71,19 @@ import org.apache.hadoop.mapreduce.Partitioner;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
+import org.apache.kylin.common.KylinConfig;
+import org.apache.kylin.common.util.Dictionary;
+import org.apache.kylin.common.util.HadoopUtil;
+import org.apache.kylin.dict.AppendTrieDictionary;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -313,6 +312,7 @@ public class IndexGeneratorJob implements Jobby
 
     private AggregatorFactory[] aggsForSerializingSegmentInputRow;
     private Map<String, InputRowSerde.IndexSerdeTypeHelper> typeHelperMap;
+    private Map<String, Dictionary<String>> dictMap;
 
     @Override
     protected void setup(Context context)
@@ -336,6 +336,45 @@ public class IndexGeneratorJob implements Jobby
                                                            .getParser()
                                                            .getParseSpec()
                                                            .getDimensionsSpec());
+      HadoopUtil.setCurrentConfiguration(context.getConfiguration());
+
+      Properties prop = new Properties();
+      prop.setProperty("kylin.hdfs.working.dir", config.getWorkingPath());
+      KylinConfig.setKylinConfigInEnvIfMissing(prop);
+
+      dictMap = new HashMap<>();
+      for (AggregatorFactory aggFactory : aggregators) {
+        if (aggFactory.getTypeName().equals("unique")) {
+          try {
+            Method method = aggFactory.getClass().getMethod("getFieldName");
+            String fieldName = (String) method.invoke(aggFactory);
+            if (fieldName == null || fieldName.isEmpty()) {
+              throw new RuntimeException("fieldName is null or empty");
+            }
+            log.info("column name: " + fieldName);
+
+            String dictHdfsDir = KylinConfig.getInstanceFromEnv().getHdfsWorkingDirectory() +
+                    "/resources/GlobalDict/dict/" +
+                    config.getSchema().getDataSchema().getDataSource() + "/" + fieldName + "/";
+
+            AppendTrieDictionary<String> dict = new AppendTrieDictionary();
+            dict.init(dictHdfsDir);
+
+            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            try (PrintStream ps = new PrintStream(baos, true, "UTF-8")) {
+              dict.dump(ps);
+            }
+            String dictInfo = new String(baos.toByteArray(), StandardCharsets.UTF_8);
+
+            log.info("dict info:%s,min:%s,max:%s", dictInfo, dict.getMinId(), dict.getMaxId());
+
+            dictMap.put(aggFactory.getName(), dict);
+          }
+          catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            log.warn("broken unique agg:%s", aggFactory);
+          }
+        }
+      }
     }
 
     @Override
@@ -376,7 +415,8 @@ public class IndexGeneratorJob implements Jobby
                                                       InputRowSerde.toBytes(
                                                           typeHelperMap,
                                                           inputRow,
-                                                          aggregators
+                                                          aggregators,
+                                                          dictMap
                                                       );
 
       context.write(
@@ -595,6 +635,7 @@ public class IndexGeneratorJob implements Jobby
     ) throws IOException
     {
       return HadoopDruidIndexerConfig.INDEX_MERGER_V9
+          // change by jsq, myabe need to update to config.getIndexSpecForIntermediatePersists()
           .persist(index, interval, file, config.getIndexSpec(), progressIndicator, null);
     }
 
