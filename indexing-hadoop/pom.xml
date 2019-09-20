@@ -120,6 +120,11 @@
             <artifactId>jetty-client</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.kylin</groupId>
+            <artifactId>kylin-core-dictionary</artifactId>
+        </dependency>
+
         <!-- Tests -->
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>

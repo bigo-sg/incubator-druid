@@ -57,6 +57,7 @@ import org.apache.druid.guice.QueryablePeonModule;
 import org.apache.druid.guice.annotations.Json;
 import org.apache.druid.guice.annotations.Parent;
 import org.apache.druid.guice.annotations.Smile;
+import org.apache.druid.indexer.ZkConfigManager;
 import org.apache.druid.indexing.common.RetryPolicyConfig;
 import org.apache.druid.indexing.common.RetryPolicyFactory;
 import org.apache.druid.indexing.common.SingleFileTaskReportFileWriter;
@@ -183,6 +184,7 @@ public class CliPeon extends GuiceRunnable
 
             binder.bind(ExecutorLifecycle.class).in(ManageLifecycle.class);
             LifecycleModule.register(binder, ExecutorLifecycle.class);
+            LifecycleModule.register(binder, ZkConfigManager.class);
             binder.bind(ExecutorLifecycleConfig.class).toInstance(
                 new ExecutorLifecycleConfig()
                     .setTaskFile(new File(taskLogPath))
