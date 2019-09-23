@@ -87,8 +87,8 @@ public class BuildDictJob implements Jobby
 
       //8G memory is enough for all global dict, because the input is sequential and we handle global dict slice by slice
       //can be override by jobproperty
-      job.getConfiguration().set("mapreduce.reduce.memory.mb", "8500");
-      job.getConfiguration().set("mapred.reduce.child.java.opts", "-Xmx8g");
+      job.getConfiguration().set("mapreduce.reduce.memory.mb", "16500");
+      job.getConfiguration().set("mapred.reduce.child.java.opts", "-Xmx16g");
 
       job.getConfiguration().set(HadoopDruidIndexerConfig.CONFIG_PROPERTY + ".zkhosts", zkHosts);
       job.getConfiguration().set(HadoopDruidIndexerConfig.CONFIG_PROPERTY + ".zkbase", zkBase);
