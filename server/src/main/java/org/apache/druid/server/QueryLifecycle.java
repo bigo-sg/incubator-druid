@@ -48,6 +48,8 @@ import org.apache.druid.server.security.AuthorizerMapper;
 
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -317,6 +319,9 @@ public class QueryLifecycle
       statsMap.put("remoteUser", StringUtils.nullToEmptyNonDruidDataString(remoteUser));
       statsMap.put("other", StringUtils.nullToEmptyNonDruidDataString(other));
 
+      InetAddress addr = InetAddress.getLocalHost();
+      statsMap.put("brokerIp", StringUtils.nullToEmptyNonDruidDataString(addr.getHostAddress()));
+
       if (authenticationResult != null) {
         statsMap.put("identity", authenticationResult.getIdentity());
       }
@@ -339,6 +344,9 @@ public class QueryLifecycle
               new QueryStats(statsMap)
           )
       );
+    }
+    catch (UnknownHostException e1) {
+      log.error(e1, "Unknow hosts for broker sending to druid_job_audit");
     }
     catch (Exception ex) {
       log.error(ex, "Unable to log query [%s]!", baseQuery);
