@@ -85,6 +85,7 @@ public class KafkaMessageJson {
       // 预留位
       jsonObject.put("user", stats.get("remoteUser"));
       jsonObject.put("userAgent", stats.get("other"));
+      jsonObject.put("brokerIp", stats.get("brokerIp"));
       if (sqlQueryId.isEmpty()) {
         jsonObject.put("other", "true");
       } else {
