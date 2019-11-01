@@ -320,7 +320,7 @@ public class QueryLifecycle
       statsMap.put("other", StringUtils.nullToEmptyNonDruidDataString(other));
 
       InetAddress addr = InetAddress.getLocalHost();
-      statsMap.put("brokerIp", StringUtils.nullToEmptyNonDruidDataString(addr.getHostAddress()));
+      statsMap.put("brokerIp", StringUtils.nullToEmptyNonDruidDataString(addr.getHostName()));
 
       if (authenticationResult != null) {
         statsMap.put("identity", authenticationResult.getIdentity());
