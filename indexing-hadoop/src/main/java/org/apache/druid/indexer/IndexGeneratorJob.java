@@ -623,6 +623,7 @@ public class IndexGeneratorJob implements Jobby
     private AggregatorFactory[] aggregators;
     private AggregatorFactory[] combiningAggs;
     private Map<String, InputRowSerde.IndexSerdeTypeHelper> typeHelperMap;
+    Map<String, String> jobProperties;
 
     protected ProgressIndicator makeProgressIndicator(final Context context)
     {
@@ -664,6 +665,7 @@ public class IndexGeneratorJob implements Jobby
     protected void setup(Context context)
     {
       config = HadoopDruidIndexerConfig.fromConfiguration(context.getConfiguration());
+      jobProperties = config.getSchema().getTuningConfig().getJobProperties();
 
       aggregators = config.getSchema().getDataSchema().getAggregators();
       combiningAggs = new AggregatorFactory[aggregators.length];
@@ -739,6 +741,8 @@ public class IndexGeneratorJob implements Jobby
           persistExecutor = Execs.directExecutor();
         }
 
+        Long persistLine = Long.parseLong(jobProperties.
+                getOrDefault(HadoopDruidIndexerConfig.DEFAULT_PERSIST_LINE_IN_GENERATOR_REDUCER, "700000"));
         for (final BytesWritable bw : values) {
           context.progress();
 
@@ -747,7 +751,8 @@ public class IndexGeneratorJob implements Jobby
 
           ++lineCount;
 
-          if (!index.canAppendRow()) {
+          if (!index.canAppendRow() || lineCount % persistLine == 0) {
+            log.info("### presist index for: " + lineCount + ".   BytesInMemory: "  + index.getBytesInMemory());
             allDimensionNames.addAll(index.getDimensionOrder());
 
             log.info(index.getOutOfRowsReason());

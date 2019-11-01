@@ -95,6 +95,9 @@ public class HadoopDruidIndexerConfig
   public static final HadoopKerberosConfig HADOOP_KERBEROS_CONFIG;
   public static final DataSegmentPusher DATA_SEGMENT_PUSHER;
   private static final String DEFAULT_WORKING_PATH = "/tmp/druid-indexing";
+  public static final String DICT_DEFAULT_MAPREDUCE_MEMORY = "dict.mapreduce.reduce.memory.mb";
+  public static final String DICT_DEFAULT_MAPRED_CHILD_OPTS = "dict.mapred.reduce.child.java.opts";
+  public static final String DEFAULT_PERSIST_LINE_IN_GENERATOR_REDUCER= "default.persist.line.in.generator.reducer";
 
 
 

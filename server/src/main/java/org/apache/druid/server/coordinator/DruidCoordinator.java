@@ -19,25 +19,19 @@
 
 package org.apache.druid.server.coordinator;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
+import com.google.common.io.ByteStreams;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.inject.Inject;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import it.unimi.dsi.fastutil.objects.Object2IntMaps;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2LongMap;
-import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
+import it.unimi.dsi.fastutil.objects.*;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.utils.ZKPaths;
-import org.apache.druid.client.DataSourcesSnapshot;
-import org.apache.druid.client.DruidDataSource;
-import org.apache.druid.client.DruidServer;
-import org.apache.druid.client.ImmutableDruidDataSource;
-import org.apache.druid.client.ImmutableDruidServer;
-import org.apache.druid.client.ServerInventoryView;
+import org.apache.druid.client.*;
 import org.apache.druid.client.coordinator.Coordinator;
 import org.apache.druid.client.indexing.IndexingServiceClient;
 import org.apache.druid.common.config.JacksonConfigManager;
@@ -58,17 +52,12 @@ import org.apache.druid.java.util.common.lifecycle.LifecycleStart;
 import org.apache.druid.java.util.common.lifecycle.LifecycleStop;
 import org.apache.druid.java.util.emitter.EmittingLogger;
 import org.apache.druid.java.util.emitter.service.ServiceEmitter;
+import org.apache.druid.java.util.emitter.service.ServiceMetricEvent;
 import org.apache.druid.metadata.MetadataRuleManager;
 import org.apache.druid.metadata.MetadataSegmentManager;
+import org.apache.druid.query.DruidMetrics;
 import org.apache.druid.server.DruidNode;
-import org.apache.druid.server.coordinator.helper.DruidCoordinatorBalancer;
-import org.apache.druid.server.coordinator.helper.DruidCoordinatorCleanupOvershadowed;
-import org.apache.druid.server.coordinator.helper.DruidCoordinatorCleanupUnneeded;
-import org.apache.druid.server.coordinator.helper.DruidCoordinatorHelper;
-import org.apache.druid.server.coordinator.helper.DruidCoordinatorLogger;
-import org.apache.druid.server.coordinator.helper.DruidCoordinatorRuleRunner;
-import org.apache.druid.server.coordinator.helper.DruidCoordinatorSegmentCompactor;
-import org.apache.druid.server.coordinator.helper.DruidCoordinatorSegmentInfoLoader;
+import org.apache.druid.server.coordinator.helper.*;
 import org.apache.druid.server.coordinator.rules.LoadRule;
 import org.apache.druid.server.coordinator.rules.Rule;
 import org.apache.druid.server.initialization.ZkPathsConfig;
@@ -78,14 +67,10 @@ import org.apache.druid.timeline.SegmentId;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.net.InetAddress;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -541,6 +526,14 @@ public class DruidCoordinator
                 config.getCoordinatorIndexingPeriod()
             )
         );
+        // Get total segment count in each historical server and emit
+        coordinatorRunnables.add(
+                Pair.of(
+                        new CoordinatorServerSegmentsRunnable(makeIndexingServiceHelpers(),
+                                startingLeaderCounter),
+                        config.getCoordinatorPeriod()
+                )
+        );
       }
 
       for (final Pair<? extends CoordinatorRunnable, Duration> coordinatorRunnable : coordinatorRunnables) {
@@ -771,5 +764,45 @@ public class DruidCoordinator
       super(helpers, startingLeaderCounter);
     }
   }
+
+  private class CoordinatorServerSegmentsRunnable extends CoordinatorRunnable
+  {
+    public CoordinatorServerSegmentsRunnable(List<DruidCoordinatorHelper> helpers, final int startingLeaderCounter)
+    {
+      super(helpers, startingLeaderCounter);
+    }
+    @Override
+    public void run()
+    {
+      try{
+        InetAddress addr = InetAddress.getLocalHost();
+        String host = addr.getHostAddress();
+        String stringUrl = "http://" + host + ":8081/druid/coordinator/v1/servers?simple";
+
+        URL url = new URL(stringUrl);
+        URLConnection uc = url.openConnection();
+        uc.setRequestProperty("X-Requested-With", "Curl");
+        String str = new String(ByteStreams.toByteArray(uc.getInputStream()));
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        Iterator<JsonNode> elements = objectMapper.readValue(str, JsonNode.class).elements();
+        while (elements.hasNext()) {
+          JsonNode node = elements.next();
+          Map result = objectMapper.convertValue(node, Map.class);
+          String[] hostArr = result.get("host").toString().split(":");
+          if (hostArr[1].equals("8083")) {
+            emitter.emit(
+                    new ServiceMetricEvent.Builder()
+                            .setDimension(DruidMetrics.SERVER, hostArr[0])
+                            .build("segment/server/totalSegments", Long.parseLong(result.get("totalSegments").toString()))
+            );
+          }
+        }
+      } catch (Exception e) {
+        log.error("Fail to emit server segment total count message. " + e);
+      }
+    }
+  }
+
 }
 

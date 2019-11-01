@@ -51,6 +51,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 public class BuildDictJob implements Jobby
@@ -74,7 +75,8 @@ public class BuildDictJob implements Jobby
     try {
       final long startTime = System.currentTimeMillis();
 
-      String skipDict = config.getSchema().getTuningConfig().getJobProperties().getOrDefault("druid.dict.skip", "false");
+      Map<String, String> jobProperties = config.getSchema().getTuningConfig().getJobProperties();
+      String skipDict = jobProperties.getOrDefault("druid.dict.skip", "false");
       if (skipDict != null && "true".equals(skipDict)) {
         log.info("skipDict set true, no need to build dict");
         return true;
@@ -87,8 +89,12 @@ public class BuildDictJob implements Jobby
 
       //8G memory is enough for all global dict, because the input is sequential and we handle global dict slice by slice
       //can be override by jobproperty
-      job.getConfiguration().set("mapreduce.reduce.memory.mb", "16500");
-      job.getConfiguration().set("mapred.reduce.child.java.opts", "-Xmx16g");
+//      job.getConfiguration().set("mapreduce.reduce.memory.mb", "16500");
+//      job.getConfiguration().set("mapred.reduce.child.java.opts", "-Xmx16g");
+      job.getConfiguration().set("mapreduce.reduce.memory.mb",
+              jobProperties.getOrDefault(HadoopDruidIndexerConfig.DICT_DEFAULT_MAPREDUCE_MEMORY, "8500"));
+      job.getConfiguration().set("mapred.reduce.child.java.opts",
+              jobProperties.getOrDefault(HadoopDruidIndexerConfig.DICT_DEFAULT_MAPRED_CHILD_OPTS,"-Xmx8g"));
 
       job.getConfiguration().set(HadoopDruidIndexerConfig.CONFIG_PROPERTY + ".zkhosts", zkHosts);
       job.getConfiguration().set(HadoopDruidIndexerConfig.CONFIG_PROPERTY + ".zkbase", zkBase);
