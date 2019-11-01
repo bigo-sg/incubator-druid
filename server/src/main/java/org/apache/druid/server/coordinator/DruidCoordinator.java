@@ -25,12 +25,12 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
-import com.google.common.io.ByteStreams;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.inject.Inject;
 import it.unimi.dsi.fastutil.objects.Object2LongMap;
 import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
+import org.apache.commons.io.IOUtils;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.utils.ZKPaths;
 import org.apache.druid.client.*;
@@ -70,9 +70,11 @@ import org.joda.time.DateTime;
 import org.joda.time.Duration;
 
 import javax.annotation.Nullable;
+import java.io.StringWriter;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
@@ -834,10 +836,14 @@ public class DruidCoordinator
         URL url = new URL(stringUrl);
         URLConnection uc = url.openConnection();
         uc.setRequestProperty("X-Requested-With", "Curl");
-        String str = new String(ByteStreams.toByteArray(uc.getInputStream()));
+
+        StringWriter writer = new StringWriter();
+        IOUtils.copy(uc.getInputStream(), writer, StandardCharsets.UTF_8.name());
+        String str = writer.toString();
 
         ObjectMapper objectMapper = new ObjectMapper();
         Iterator<JsonNode> elements = objectMapper.readValue(str, JsonNode.class).elements();
+        log.info("Start to send metric of segment/server/totalSegments");
         while (elements.hasNext()) {
           JsonNode node = elements.next();
           Map result = objectMapper.convertValue(node, Map.class);
