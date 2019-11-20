@@ -574,13 +574,13 @@ public class DruidCoordinator
             )
         );
         // Get total segment count in each historical server and emit
-        coordinatorRunnables.add(
-                Pair.of(
-                        new CoordinatorServerSegmentsRunnable(makeIndexingServiceHelpers(),
-                                startingLeaderCounter),
-                        config.getCoordinatorPeriod()
-                )
-        );
+//        coordinatorRunnables.add(
+//                Pair.of(
+//                        new CoordinatorServerSegmentsRunnable(makeIndexingServiceHelpers(),
+//                                startingLeaderCounter),
+//                        config.getCoordinatorPeriod()
+//                )
+//        );
       }
 
       for (final Pair<? extends CoordinatorRunnable, Duration> coordinatorRunnable : coordinatorRunnables) {
@@ -840,6 +840,12 @@ public class DruidCoordinator
         StringWriter writer = new StringWriter();
         IOUtils.copy(uc.getInputStream(), writer, StandardCharsets.UTF_8.name());
         String str = writer.toString();
+
+        if (str == null || str.isEmpty()) {
+          log.error("Failed to get data from: " + stringUrl);
+        } else {
+          log.info("Receive data from stringUrl: " + str.substring(0, 30) + "...");
+        }
 
         ObjectMapper objectMapper = new ObjectMapper();
         Iterator<JsonNode> elements = objectMapper.readValue(str, JsonNode.class).elements();
