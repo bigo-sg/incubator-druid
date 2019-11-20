@@ -62,7 +62,6 @@ import java.util.Map;
     @JsonSubTypes.Type(name = "index_realtime", value = RealtimeIndexTask.class),
     @JsonSubTypes.Type(name = "index_realtime_appenderator", value = AppenderatorDriverRealtimeIndexTask.class),
     @JsonSubTypes.Type(name = "noop", value = NoopTask.class),
-    @JsonSubTypes.Type(name = "hvie_compact", value = HiveCompactionTask.class),
     @JsonSubTypes.Type(name = "compact", value = CompactionTask.class)
 })
 public interface Task
