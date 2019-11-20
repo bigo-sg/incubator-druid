@@ -102,6 +102,8 @@ import org.apache.druid.server.http.RedirectInfo;
 import org.apache.druid.server.initialization.ServerConfig;
 import org.apache.druid.server.initialization.jetty.JettyServerInitUtils;
 import org.apache.druid.server.initialization.jetty.JettyServerInitializer;
+import org.apache.druid.server.metrics.MetricsModule;
+import org.apache.druid.server.metrics.TaskCountStatsMonitor;
 import org.apache.druid.server.metrics.TaskCountStatsProvider;
 import org.apache.druid.server.security.AuthConfig;
 import org.apache.druid.server.security.AuthenticationUtils;
@@ -240,6 +242,8 @@ public class CliOverlord extends ServerRunnable
             if (standalone) {
               LifecycleModule.register(binder, Server.class);
             }
+
+            MetricsModule.register(binder, TaskCountStatsMonitor.class);
 
             bindAnnouncer(
                 binder,

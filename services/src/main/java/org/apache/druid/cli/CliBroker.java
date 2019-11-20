@@ -53,6 +53,7 @@ import org.apache.druid.server.ClientQuerySegmentWalker;
 import org.apache.druid.server.http.BrokerResource;
 import org.apache.druid.server.initialization.jetty.JettyServerInitializer;
 import org.apache.druid.server.metrics.MetricsModule;
+import org.apache.druid.server.metrics.QueryCountStatsMonitor;
 import org.apache.druid.server.metrics.QueryCountStatsProvider;
 import org.apache.druid.server.router.TieredBrokerConfig;
 import org.apache.druid.sql.guice.SqlModule;
@@ -119,6 +120,7 @@ public class CliBroker extends ServerRunnable
           Jerseys.addResource(binder, HttpServerInventoryViewResource.class);
 
           MetricsModule.register(binder, CacheMonitor.class);
+          MetricsModule.register(binder, QueryCountStatsMonitor.class);
 
           LifecycleModule.register(binder, Server.class);
 
