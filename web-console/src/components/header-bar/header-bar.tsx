@@ -54,6 +54,7 @@ export type HeaderActiveTab =
   | 'segments'
   | 'tasks'
   | 'servers'
+  | 'compaction'
   | 'lookups';
 
 export interface HeaderBarProps {
@@ -238,6 +239,13 @@ export class HeaderBar extends React.PureComponent<HeaderBarProps, HeaderBarStat
             icon={IconNames.DATABASE}
             text="Servers"
             href="#servers"
+          />
+          <AnchorButton
+            minimal
+            active={active === 'compaction'}
+            icon={IconNames.DATABASE}
+            text="Compaction"
+            href="#compaction"
           />
 
           <NavbarDivider />

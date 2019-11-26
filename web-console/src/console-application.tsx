@@ -27,8 +27,8 @@ import { ExternalLink, HeaderActiveTab, HeaderBar, Loader } from './components';
 import { AppToaster } from './singletons/toaster';
 import { localStorageGet, LocalStorageKeys, QueryManager } from './utils';
 import { DRUID_DOCS_API, DRUID_DOCS_SQL } from './variables';
-
 import {
+  CompactionView,
   DatasourcesView,
   HomeView,
   LoadDataView,
@@ -37,7 +37,6 @@ import {
   SegmentsView,
   ServersView,
   TasksView,
-  CompactionView
 } from './views';
 
 import './console-application.scss';
@@ -295,11 +294,8 @@ export class ConsoleApplication extends React.PureComponent<
     );
   };
 
-   private wrappedCompactionView = () => {
-    return this.wrapInViewContainer(
-      'compaction',
-      <CompactionView/>,
-    );
+  private wrappedCompactionView = () => {
+    return this.wrapInViewContainer('compaction', <CompactionView />);
   };
 
   private wrappedServersView = () => {

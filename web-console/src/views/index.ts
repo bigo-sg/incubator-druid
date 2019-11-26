@@ -24,3 +24,4 @@ export * from './segments-view/segments-view';
 export * from './servers-view/servers-view';
 export * from './query-view/query-view';
 export * from './task-view/tasks-view';
+export * from './compaction-view/compaction-view';
