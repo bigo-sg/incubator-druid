@@ -74,7 +74,7 @@ public class KinesisSamplerSpecTest extends EasyMockSupport
       OBJECT_MAPPER.convertValue(
           new StringInputRowParser(
               new JSONParseSpec(
-                  new TimestampSpec("timestamp", "iso", null),
+                  new TimestampSpec("timestamp", "iso", null, null),
                   new DimensionsSpec(
                       Arrays.asList(
                           new StringDimensionSchema("dim1"),

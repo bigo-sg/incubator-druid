@@ -114,7 +114,7 @@ public class VarianceSqlAggregatorTest
   {
     InputRowParser parser = new MapInputRowParser(
         new TimeAndDimsParseSpec(
-            new TimestampSpec("t", "iso", null),
+            new TimestampSpec("t", "iso", null, null),
             new DimensionsSpec(
                 ImmutableList.<DimensionSchema>builder()
                     .addAll(DimensionsSpec.getDefaultSchemas(ImmutableList.of("dim1", "dim2", "dim3")))

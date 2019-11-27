@@ -50,7 +50,8 @@ public class InlineFirehoseFactoryTest
           new TimestampSpec(
               DIMENSION_0,
               "auto",
-              null
+              null,
+                null
           ),
           new DimensionsSpec(
               DimensionsSpec.getDefaultSchemas(DIMENSIONS),

@@ -22,5 +22,7 @@ rm -rf \
   lib/sql-docs.js \
   lib/sql-function-doc.* \
   node_modules \
+  coordinator-console \
+  pages \
   public \
-  assets \
+  index.html

@@ -285,7 +285,8 @@ public class MultiPhaseParallelIndexingTest extends AbstractParallelIndexSupervi
         new TimestampSpec(
             "ts",
             "auto",
-            null
+            null,
+              null
         ),
         new DimensionsSpec(
             DimensionsSpec.getDefaultSchemas(Arrays.asList("ts", "dim1", "dim2")),
