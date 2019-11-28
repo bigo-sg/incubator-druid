@@ -28,85 +28,77 @@ import { HeaderAndRows, SampleEntry } from '../../../utils/sampler';
 
 import './transform-table.scss';
 
-export function transformTableSelectedColumnName(
-  sampleData: HeaderAndRows,
-  selectedTransform: Transform | undefined,
-): string | undefined {
-  if (!selectedTransform) return;
-  const selectedTransformName = selectedTransform.name;
-  if (!sampleData.header.includes(selectedTransformName)) return;
-  return selectedTransformName;
-}
-
 export interface TransformTableProps {
   sampleData: HeaderAndRows;
   columnFilter: string;
   transformedColumnsOnly: boolean;
   transforms: Transform[];
-  selectedColumnName: string | undefined;
+  selectedTransformIndex: number;
   onTransformSelect: (transform: Transform, index: number) => void;
 }
 
-export const TransformTable = React.memo(function TransformTable(props: TransformTableProps) {
-  const {
-    sampleData,
-    columnFilter,
-    transformedColumnsOnly,
-    transforms,
-    selectedColumnName,
-    onTransformSelect,
-  } = props;
+export class TransformTable extends React.PureComponent<TransformTableProps> {
+  render(): JSX.Element {
+    const {
+      sampleData,
+      columnFilter,
+      transformedColumnsOnly,
+      transforms,
+      selectedTransformIndex,
+      onTransformSelect,
+    } = this.props;
 
-  return (
-    <ReactTable
-      className="transform-table -striped -highlight"
-      data={sampleData.rows}
-      columns={filterMap(sampleData.header, (columnName, i) => {
-        if (!caseInsensitiveContains(columnName, columnFilter)) return;
-        const timestamp = columnName === '__time';
-        const transformIndex = transforms.findIndex(f => f.name === columnName);
-        if (transformIndex === -1 && transformedColumnsOnly) return;
-        const transform = transforms[transformIndex];
+    return (
+      <ReactTable
+        className="transform-table -striped -highlight"
+        data={sampleData.rows}
+        columns={filterMap(sampleData.header, (columnName, i) => {
+          if (!caseInsensitiveContains(columnName, columnFilter)) return;
+          const timestamp = columnName === '__time';
+          const transformIndex = transforms.findIndex(f => f.name === columnName);
+          if (transformIndex === -1 && transformedColumnsOnly) return;
+          const transform = transforms[transformIndex];
 
-        const columnClassName = classNames({
-          transformed: transform,
-          selected: columnName === selectedColumnName,
-        });
-        return {
-          Header: (
-            <div
-              className={classNames('clickable')}
-              onClick={() => {
-                if (transform) {
-                  onTransformSelect(transform, transformIndex);
-                } else {
-                  onTransformSelect(
-                    {
-                      type: 'expression',
-                      name: columnName,
-                      expression: escapeColumnName(columnName),
-                    },
-                    transformIndex,
-                  );
-                }
-              }}
-            >
-              <div className="column-name">{columnName}</div>
-              <div className="column-detail">
-                {transform ? `= ${transform.expression}` : ''}&nbsp;
+          const columnClassName = classNames({
+            transformed: transform,
+            selected: transform && transformIndex === selectedTransformIndex,
+          });
+          return {
+            Header: (
+              <div
+                className={classNames('clickable')}
+                onClick={() => {
+                  if (transform) {
+                    onTransformSelect(transform, transformIndex);
+                  } else {
+                    onTransformSelect(
+                      {
+                        type: 'expression',
+                        name: columnName,
+                        expression: escapeColumnName(columnName),
+                      },
+                      transformIndex,
+                    );
+                  }
+                }}
+              >
+                <div className="column-name">{columnName}</div>
+                <div className="column-detail">
+                  {transform ? `= ${transform.expression}` : ''}&nbsp;
+                </div>
               </div>
-            </div>
-          ),
-          headerClassName: columnClassName,
-          className: columnClassName,
-          id: String(i),
-          accessor: (row: SampleEntry) => (row.parsed ? row.parsed[columnName] : null),
-          Cell: row => <TableCell value={timestamp ? new Date(row.value) : row.value} />,
-        };
-      })}
-      defaultPageSize={50}
-      showPagination={false}
-      sortable={false}
-    />
-  );
-});
+            ),
+            headerClassName: columnClassName,
+            className: columnClassName,
+            id: String(i),
+            accessor: (row: SampleEntry) => (row.parsed ? row.parsed[columnName] : null),
+            Cell: row => <TableCell value={row.value} timestamp={timestamp} />,
+          };
+        })}
+        defaultPageSize={50}
+        showPagination={false}
+        sortable={false}
+      />
+    );
+  }
+}

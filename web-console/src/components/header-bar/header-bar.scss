@@ -21,11 +21,10 @@
 .header-bar {
   overflow: hidden;
 
-  .druid-logo {
+  .logo {
     position: relative;
     width: 100px;
     height: $header-bar-height;
-    overflow: hidden;
 
     svg {
       position: absolute;

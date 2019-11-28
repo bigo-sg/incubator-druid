@@ -38,7 +38,6 @@ exports[`sql view matches snapshot 1`] = `
           onEditContext={[Function]}
           onExplain={[Function]}
           onHistory={[Function]}
-          onPrettier={[Function]}
           onQueryContextChange={[Function]}
           onRun={[Function]}
           queryContext={Object {}}
@@ -72,7 +71,7 @@ exports[`sql view matches snapshot 1`] = `
         </Blueprint3.Tooltip>
       </div>
     </div>
-    <Memo(QueryOutput)
+    <QueryOutput
       loading={false}
       onQueryChange={[Function]}
       runeMode={false}

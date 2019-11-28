@@ -43,7 +43,6 @@ describe('parse time table', () => {
         }}
         columnFilter=""
         possibleTimestampColumnsOnly={false}
-        selectedColumnName={undefined}
         onTimestampColumnSelect={() => {}}
       />
     );

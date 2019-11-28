@@ -17,7 +17,7 @@
  */
 
 import { Intent, TextArea } from '@blueprintjs/core';
-import React, { useState } from 'react';
+import React from 'react';
 
 import { compact } from '../../utils';
 
@@ -31,33 +31,40 @@ export interface ArrayInputProps {
   intent?: Intent;
 }
 
-export const ArrayInput = React.memo(function ArrayInput(props: ArrayInputProps) {
-  const { className, placeholder, large, disabled, intent } = props;
-  const [stringValue, setStringValue] = useState();
+export class ArrayInput extends React.PureComponent<ArrayInputProps, { stringValue: string }> {
+  constructor(props: ArrayInputProps) {
+    super(props);
+    this.state = {
+      stringValue: Array.isArray(props.values) ? props.values.join(', ') : '',
+    };
+  }
 
-  const handleChange = (e: any) => {
-    const { onChange } = props;
+  private handleChange = (e: any) => {
+    const { onChange } = this.props;
     const stringValue = e.target.value;
-    const newValues: string[] = stringValue.split(/[,\s]+/).map((v: string) => v.trim());
+    const newValues: string[] = stringValue.split(',').map((v: string) => v.trim());
     const newValuesFiltered = compact(newValues);
-    if (newValues.length === newValuesFiltered.length) {
-      onChange(stringValue === '' ? undefined : newValuesFiltered);
-      setStringValue(undefined);
-    } else {
-      setStringValue(stringValue);
-    }
+    this.setState({
+      stringValue:
+        newValues.length === newValuesFiltered.length ? newValues.join(', ') : stringValue,
+    });
+    if (onChange) onChange(stringValue === '' ? undefined : newValuesFiltered);
   };
 
-  return (
-    <TextArea
-      className={className}
-      value={stringValue || props.values.join(', ')}
-      onChange={handleChange}
-      placeholder={placeholder}
-      large={large}
-      disabled={disabled}
-      intent={intent}
-      fill
-    />
-  );
-});
+  render(): JSX.Element {
+    const { className, placeholder, large, disabled, intent } = this.props;
+    const { stringValue } = this.state;
+    return (
+      <TextArea
+        className={className}
+        value={stringValue}
+        onChange={this.handleChange}
+        placeholder={placeholder}
+        large={large}
+        disabled={disabled}
+        intent={intent}
+        fill
+      />
+    );
+  }
+}

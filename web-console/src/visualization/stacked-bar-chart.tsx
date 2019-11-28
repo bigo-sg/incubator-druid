@@ -16,8 +16,9 @@
  * limitations under the License.
  */
 
-import { axisBottom, axisLeft, AxisScale } from 'd3-axis';
-import React, { useState } from 'react';
+import * as d3 from 'd3';
+import { AxisScale } from 'd3';
+import React from 'react';
 
 import { BarChartMargin, BarUnitData } from '../components/segment-timeline/segment-timeline';
 
@@ -39,6 +40,12 @@ interface StackedBarChartProps {
   barWidth: number;
 }
 
+interface StackedBarChartState {
+  width: number;
+  height: number;
+  hoverOn?: HoveredBarInfo | null;
+}
+
 export interface HoveredBarInfo {
   xCoordinate?: number;
   yCoordinate?: number;
@@ -49,24 +56,31 @@ export interface HoveredBarInfo {
   yValue?: number;
 }
 
-export const StackedBarChart = React.memo(function StackedBarChart(props: StackedBarChartProps) {
-  const {
-    activeDataType,
-    svgWidth,
-    svgHeight,
-    formatTick,
-    xScale,
-    yScale,
-    dataToRender,
-    changeActiveDatasource,
-    barWidth,
-  } = props;
-  const [hoverOn, setHoverOn] = useState();
+export class StackedBarChart extends React.Component<StackedBarChartProps, StackedBarChartState> {
+  static getDerivedStateFromProps(props: StackedBarChartProps) {
+    const width = props.svgWidth - props.margin.left - props.margin.right;
+    const height = props.svgHeight - props.margin.bottom - props.margin.top;
+    return {
+      width,
+      height,
+    };
+  }
+  constructor(props: StackedBarChartProps) {
+    super(props);
+  }
 
-  const width = props.svgWidth - props.margin.left - props.margin.right;
-  const height = props.svgHeight - props.margin.bottom - props.margin.top;
-
-  function renderBarChart() {
+  renderBarChart() {
+    const {
+      svgWidth,
+      svgHeight,
+      formatTick,
+      xScale,
+      yScale,
+      dataToRender,
+      changeActiveDatasource,
+      barWidth,
+    } = this.props;
+    const { width, height, hoverOn } = this.state;
     return (
       <div className={'bar-chart-container'}>
         <svg
@@ -79,7 +93,8 @@ export const StackedBarChart = React.memo(function StackedBarChart(props: Stacke
           <ChartAxis
             className={'gridline-x'}
             transform={'translate(60, 0)'}
-            scale={axisLeft(yScale)
+            scale={d3
+              .axisLeft(yScale)
               .ticks(5)
               .tickSize(-width)
               .tickFormat(() => '')
@@ -88,23 +103,24 @@ export const StackedBarChart = React.memo(function StackedBarChart(props: Stacke
           <ChartAxis
             className={'axis--x'}
             transform={`translate(65, ${height})`}
-            scale={axisBottom(xScale)}
+            scale={d3.axisBottom(xScale)}
           />
           <ChartAxis
             className={'axis--y'}
             transform={'translate(60, 0)'}
-            scale={axisLeft(yScale)
+            scale={d3
+              .axisLeft(yScale)
               .ticks(5)
               .tickFormat((e: number) => formatTick(e))}
           />
-          <g className="bars-group" onMouseLeave={() => setHoverOn(undefined)}>
+          <g className="bars-group" onMouseLeave={() => this.setState({ hoverOn: null })}>
             <BarGroup
               dataToRender={dataToRender}
               changeActiveDatasource={changeActiveDatasource}
               formatTick={formatTick}
               xScale={xScale}
               yScale={yScale}
-              onHoverBar={(e: HoveredBarInfo) => setHoverOn(e)}
+              onHoverBar={(e: HoveredBarInfo) => this.setState({ hoverOn: e })}
               hoverOn={hoverOn}
               barWidth={barWidth}
             />
@@ -112,7 +128,7 @@ export const StackedBarChart = React.memo(function StackedBarChart(props: Stacke
               <g
                 className={'hovered-bar'}
                 onClick={() => {
-                  setHoverOn(undefined);
+                  this.setState({ hoverOn: null });
                   changeActiveDatasource(hoverOn.datasource as string);
                 }}
               >
@@ -130,18 +146,22 @@ export const StackedBarChart = React.memo(function StackedBarChart(props: Stacke
     );
   }
 
-  return (
-    <div className={'bar-chart'}>
-      <div className={'bar-chart-tooltip'}>
-        <div>Datasource: {hoverOn ? hoverOn.datasource : ''}</div>
-        <div>Time: {hoverOn ? hoverOn.xValue : ''}</div>
-        <div>
-          {`${activeDataType === 'countData' ? 'Count:' : 'Size:'} ${
-            hoverOn ? formatTick(hoverOn.yValue as number) : ''
-          }`}
+  render(): JSX.Element {
+    const { activeDataType, formatTick } = this.props;
+    const { hoverOn } = this.state;
+    return (
+      <div className={'bar-chart'}>
+        <div className={'bar-chart-tooltip'}>
+          <div>Datasource: {hoverOn ? hoverOn.datasource : ''}</div>
+          <div>Time: {hoverOn ? hoverOn.xValue : ''}</div>
+          <div>
+            {`${activeDataType === 'countData' ? 'Count:' : 'Size:'} ${
+              hoverOn ? formatTick(hoverOn.yValue as number) : ''
+            }`}
+          </div>
         </div>
+        {this.renderBarChart()}
       </div>
-      {renderBarChart()}
-    </div>
-  );
-});
+    );
+  }
+}

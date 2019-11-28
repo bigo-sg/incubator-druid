@@ -22,12 +22,11 @@ import { sum } from 'd3-array';
 import React from 'react';
 
 import { pluralIfNeeded, queryDruidSql, QueryManager } from '../../../utils';
-import { Capabilities } from '../../../utils/capabilities';
 import { deepGet } from '../../../utils/object-change';
 import { HomeViewCard } from '../home-view-card/home-view-card';
 
 export interface SegmentsCardProps {
-  capabilities: Capabilities;
+  noSqlMode: boolean;
 }
 
 export interface SegmentsCardState {
@@ -38,7 +37,7 @@ export interface SegmentsCardState {
 }
 
 export class SegmentsCard extends React.PureComponent<SegmentsCardProps, SegmentsCardState> {
-  private segmentQueryManager: QueryManager<Capabilities, any>;
+  private segmentQueryManager: QueryManager<boolean, any>;
 
   constructor(props: SegmentsCardProps, context: any) {
     super(props, context);
@@ -49,16 +48,8 @@ export class SegmentsCard extends React.PureComponent<SegmentsCardProps, Segment
     };
 
     this.segmentQueryManager = new QueryManager({
-      processQuery: async capabilities => {
-        if (capabilities.hasSql()) {
-          const segments = await queryDruidSql({
-            query: `SELECT
-  COUNT(*) as "count",
-  COUNT(*) FILTER (WHERE is_available = 0) as "unavailable"
-FROM sys.segments`,
-          });
-          return segments.length === 1 ? segments[0] : null;
-        } else if (capabilities.hasCoordinatorAccess()) {
+      processQuery: async noSqlMode => {
+        if (noSqlMode) {
           const loadstatusResp = await axios.get('/druid/coordinator/v1/loadstatus?simple');
           const loadstatus = loadstatusResp.data;
           const unavailableSegmentNum = sum(Object.keys(loadstatus), key => loadstatus[key]);
@@ -74,7 +65,13 @@ FROM sys.segments`,
             unavailable: unavailableSegmentNum,
           };
         } else {
-          throw new Error(`must have SQL or coordinator access`);
+          const segments = await queryDruidSql({
+            query: `SELECT
+  COUNT(*) as "count",
+  COUNT(*) FILTER (WHERE is_available = 0) as "unavailable"
+FROM sys.segments`,
+          });
+          return segments.length === 1 ? segments[0] : null;
         }
       },
       onStateChange: ({ result, loading, error }) => {
@@ -89,9 +86,9 @@ FROM sys.segments`,
   }
 
   componentDidMount(): void {
-    const { capabilities } = this.props;
+    const { noSqlMode } = this.props;
 
-    this.segmentQueryManager.runQuery(capabilities);
+    this.segmentQueryManager.runQuery(noSqlMode);
   }
 
   componentWillUnmount(): void {

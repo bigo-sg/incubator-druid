@@ -64,11 +64,7 @@ exports[`parse time table matches snapshot 1`] = `
             role="gridcell"
             style="flex: 100 0 auto; width: 100px;"
           >
-            <span
-              class="table-cell plain"
-            >
-              hello
-            </span>
+            hello
           </div>
         </div>
       </div>

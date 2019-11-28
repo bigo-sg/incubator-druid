@@ -38,6 +38,7 @@ if (!container) throw new Error('container not found');
 
 interface ConsoleConfig {
   title?: string;
+  hideLegacy?: boolean;
   baseURL?: string;
   customHeaderName?: string;
   customHeaderValue?: string;
@@ -63,6 +64,7 @@ if (consoleConfig.customHeaders) {
 
 ReactDOM.render(
   React.createElement(ConsoleApplication, {
+    hideLegacy: Boolean(consoleConfig.hideLegacy),
     exampleManifestsUrl: consoleConfig.exampleManifestsUrl,
   }) as any,
   container,

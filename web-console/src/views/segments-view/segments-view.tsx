@@ -16,23 +16,23 @@
  * limitations under the License.
  */
 
-import { Button, ButtonGroup, Intent, Label, MenuItem } from '@blueprintjs/core';
+import {
+  Button,
+  ButtonGroup,
+  Intent,
+  Label,
+  Menu,
+  MenuItem,
+  Popover,
+  Position,
+} from '@blueprintjs/core';
 import { IconNames } from '@blueprintjs/icons';
 import axios from 'axios';
 import React from 'react';
 import ReactTable from 'react-table';
 import { Filter } from 'react-table';
 
-import {
-  ACTION_COLUMN_ID,
-  ACTION_COLUMN_LABEL,
-  ACTION_COLUMN_WIDTH,
-  ActionCell,
-  MoreButton,
-  RefreshButton,
-  TableColumnSelector,
-  ViewControlBar,
-} from '../../components';
+import { ActionCell, RefreshButton, TableColumnSelector, ViewControlBar } from '../../components';
 import { AsyncActionDialog } from '../../dialogs';
 import { SegmentTableActionDialog } from '../../dialogs/segments-table-action-dialog/segment-table-action-dialog';
 import {
@@ -48,60 +48,41 @@ import {
   sqlQueryCustomTableFilter,
 } from '../../utils';
 import { BasicAction } from '../../utils/basic-action';
-import { Capabilities, CapabilitiesMode } from '../../utils/capabilities';
 import { LocalStorageBackedArray } from '../../utils/local-storage-backed-array';
 
 import './segments-view.scss';
 
-const tableColumns: Record<CapabilitiesMode, string[]> = {
-  full: [
-    'Segment ID',
-    'Datasource',
-    'Start',
-    'End',
-    'Version',
-    'Partition',
-    'Size',
-    'Num rows',
-    'Replicas',
-    'Is published',
-    'Is realtime',
-    'Is available',
-    'Is overshadowed',
-    ACTION_COLUMN_LABEL,
-  ],
-  'no-sql': [
-    'Segment ID',
-    'Datasource',
-    'Start',
-    'End',
-    'Version',
-    'Partition',
-    'Size',
-    ACTION_COLUMN_LABEL,
-  ],
-  'no-proxy': [
-    'Segment ID',
-    'Datasource',
-    'Start',
-    'End',
-    'Version',
-    'Partition',
-    'Size',
-    'Num rows',
-    'Replicas',
-    'Is published',
-    'Is realtime',
-    'Is available',
-    'Is overshadowed',
-  ],
-};
+const tableColumns: string[] = [
+  'Segment ID',
+  'Datasource',
+  'Start',
+  'End',
+  'Version',
+  'Partition',
+  'Size',
+  'Num rows',
+  'Replicas',
+  'Is published',
+  'Is realtime',
+  'Is available',
+  'Is overshadowed',
+  ActionCell.COLUMN_LABEL,
+];
+const tableColumnsNoSql: string[] = [
+  'Segment ID',
+  'Datasource',
+  'Start',
+  'End',
+  'Version',
+  'Partition',
+  'Size',
+];
 
 export interface SegmentsViewProps {
   goToQuery: (initSql: string) => void;
   datasource: string | undefined;
   onlyUnavailable: boolean | undefined;
-  capabilities: Capabilities;
+  noSqlMode: boolean;
 }
 
 export interface SegmentsViewState {
@@ -329,8 +310,8 @@ export class SegmentsView extends React.PureComponent<SegmentsViewProps, Segment
   }
 
   componentDidMount(): void {
-    const { capabilities } = this.props;
-    if (!capabilities.hasSql() && capabilities.hasCoordinatorAccess()) {
+    const { noSqlMode } = this.props;
+    if (noSqlMode) {
       this.segmentsNoSqlQueryManager.runQuery(null);
     }
   }
@@ -400,7 +381,7 @@ export class SegmentsView extends React.PureComponent<SegmentsViewProps, Segment
       hiddenColumns,
       groupByInterval,
     } = this.state;
-    const { capabilities } = this.props;
+    const { noSqlMode } = this.props;
 
     return (
       <ReactTable
@@ -417,19 +398,21 @@ export class SegmentsView extends React.PureComponent<SegmentsViewProps, Segment
         onFilteredChange={filtered => {
           this.setState({ segmentFilter: filtered });
         }}
-        onFetchData={state => {
-          if (capabilities.hasSql()) {
-            this.setState({
-              page: state.page,
-              pageSize: state.pageSize,
-              filtered: state.filtered,
-              sorted: state.sorted,
-            });
-            this.fetchData(groupByInterval, state);
-          } else if (capabilities.hasCoordinatorAccess()) {
-            this.fetchClientSideData(state);
-          }
-        }}
+        onFetchData={
+          noSqlMode
+            ? this.fetchClientSideData
+            : state => {
+                this.setState({
+                  page: state.page,
+                  pageSize: state.pageSize,
+                  filtered: state.filtered,
+                  sorted: state.sorted,
+                });
+                if (this.segmentsSqlQueryManager.getLastQuery) {
+                  this.fetchData(groupByInterval, state);
+                }
+              }
+        }
         showPageJump={false}
         ofText=""
         pivotBy={groupByInterval ? ['interval'] : []}
@@ -533,10 +516,7 @@ export class SegmentsView extends React.PureComponent<SegmentsViewProps, Segment
             accessor: 'size',
             filterable: false,
             defaultSortDesc: true,
-            Cell: row => {
-              if (row.value === 0 && row.original.is_realtime === 1) return '(realtime)';
-              return formatBytes(row.value);
-            },
+            Cell: row => formatBytes(row.value),
             show: hiddenColumns.exists('Size'),
           },
           {
@@ -545,7 +525,7 @@ export class SegmentsView extends React.PureComponent<SegmentsViewProps, Segment
             filterable: false,
             defaultSortDesc: true,
             Cell: row => (row.original.is_available ? formatNumber(row.value) : <em>(unknown)</em>),
-            show: capabilities.hasSql() && hiddenColumns.exists('Num rows'),
+            show: !noSqlMode && hiddenColumns.exists('Num rows'),
           },
           {
             Header: 'Replicas',
@@ -553,41 +533,41 @@ export class SegmentsView extends React.PureComponent<SegmentsViewProps, Segment
             width: 60,
             filterable: false,
             defaultSortDesc: true,
-            show: capabilities.hasSql() && hiddenColumns.exists('Replicas'),
+            show: !noSqlMode && hiddenColumns.exists('Replicas'),
           },
           {
             Header: 'Is published',
             id: 'is_published',
             accessor: row => String(Boolean(row.is_published)),
             Filter: makeBooleanFilter(),
-            show: capabilities.hasSql() && hiddenColumns.exists('Is published'),
+            show: !noSqlMode && hiddenColumns.exists('Is published'),
           },
           {
             Header: 'Is realtime',
             id: 'is_realtime',
             accessor: row => String(Boolean(row.is_realtime)),
             Filter: makeBooleanFilter(),
-            show: capabilities.hasSql() && hiddenColumns.exists('Is realtime'),
+            show: !noSqlMode && hiddenColumns.exists('Is realtime'),
           },
           {
             Header: 'Is available',
             id: 'is_available',
             accessor: row => String(Boolean(row.is_available)),
             Filter: makeBooleanFilter(),
-            show: capabilities.hasSql() && hiddenColumns.exists('Is available'),
+            show: !noSqlMode && hiddenColumns.exists('Is available'),
           },
           {
             Header: 'Is overshadowed',
             id: 'is_overshadowed',
             accessor: row => String(Boolean(row.is_overshadowed)),
             Filter: makeBooleanFilter(),
-            show: capabilities.hasSql() && hiddenColumns.exists('Is overshadowed'),
+            show: !noSqlMode && hiddenColumns.exists('Is overshadowed'),
           },
           {
-            Header: ACTION_COLUMN_LABEL,
-            id: ACTION_COLUMN_ID,
+            Header: ActionCell.COLUMN_LABEL,
+            id: ActionCell.COLUMN_ID,
             accessor: 'segment_id',
-            width: ACTION_COLUMN_WIDTH,
+            width: ActionCell.COLUMN_WIDTH,
             filterable: false,
             Cell: row => {
               if (row.aggregated) return '';
@@ -607,7 +587,7 @@ export class SegmentsView extends React.PureComponent<SegmentsViewProps, Segment
               );
             },
             Aggregated: () => '',
-            show: capabilities.hasCoordinatorAccess() && hiddenColumns.exists(ACTION_COLUMN_LABEL),
+            show: hiddenColumns.exists(ActionCell.COLUMN_LABEL),
           },
         ]}
         defaultPageSize={SegmentsView.PAGE_SIZE}
@@ -647,12 +627,12 @@ export class SegmentsView extends React.PureComponent<SegmentsViewProps, Segment
   }
 
   renderBulkSegmentsActions() {
-    const { goToQuery, capabilities } = this.props;
+    const { goToQuery, noSqlMode } = this.props;
     const lastSegmentsQuery = this.segmentsSqlQueryManager.getLastIntermediateQuery();
 
-    return (
-      <MoreButton>
-        {capabilities.hasSql() && (
+    const bulkSegmentsActionsMenu = (
+      <Menu>
+        {!noSqlMode && (
           <MenuItem
             icon={IconNames.APPLICATION}
             text="View SQL query for table"
@@ -663,7 +643,15 @@ export class SegmentsView extends React.PureComponent<SegmentsViewProps, Segment
             }}
           />
         )}
-      </MoreButton>
+      </Menu>
+    );
+
+    return (
+      <>
+        <Popover content={bulkSegmentsActionsMenu} position={Position.BOTTOM_LEFT}>
+          <Button icon={IconNames.MORE} />
+        </Popover>
+      </>
     );
   }
 
@@ -674,7 +662,7 @@ export class SegmentsView extends React.PureComponent<SegmentsViewProps, Segment
       actions,
       hiddenColumns,
     } = this.state;
-    const { capabilities } = this.props;
+    const { noSqlMode } = this.props;
     const { groupByInterval } = this.state;
 
     return (
@@ -683,7 +671,7 @@ export class SegmentsView extends React.PureComponent<SegmentsViewProps, Segment
           <ViewControlBar label="Segments">
             <RefreshButton
               onRefresh={auto =>
-                capabilities
+                noSqlMode
                   ? this.segmentsNoSqlQueryManager.rerunLastQuery(auto)
                   : this.segmentsSqlQueryManager.rerunLastQuery(auto)
               }
@@ -695,11 +683,7 @@ export class SegmentsView extends React.PureComponent<SegmentsViewProps, Segment
                 active={!groupByInterval}
                 onClick={() => {
                   this.setState({ groupByInterval: false });
-                  if (capabilities.hasSql()) {
-                    this.fetchData(false);
-                  } else {
-                    this.fetchClientSideData();
-                  }
+                  noSqlMode ? this.fetchClientSideData() : this.fetchData(false);
                 }}
               >
                 None
@@ -716,7 +700,7 @@ export class SegmentsView extends React.PureComponent<SegmentsViewProps, Segment
             </ButtonGroup>
             {this.renderBulkSegmentsActions()}
             <TableColumnSelector
-              columns={tableColumns[capabilities.getMode()]}
+              columns={noSqlMode ? tableColumnsNoSql : tableColumns}
               onChange={column =>
                 this.setState(prevState => ({
                   hiddenColumns: prevState.hiddenColumns.toggle(column),

@@ -3,7 +3,7 @@
 exports[`tasks card matches snapshot 1`] = `
 <a
   class="home-view-card tasks-card"
-  href="#ingestion"
+  href="#tasks"
 >
   <div
     class="bp3-card bp3-interactive bp3-elevation-0"

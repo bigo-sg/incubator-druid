@@ -53,7 +53,6 @@ export interface RunButtonProps {
   onExplain: (() => void) | undefined;
   onEditContext: () => void;
   onHistory: () => void;
-  onPrettier: () => void;
 }
 
 @HotkeysTarget
@@ -86,7 +85,6 @@ export class RunButton extends React.PureComponent<RunButtonProps> {
       onQueryContextChange,
       onEditContext,
       onHistory,
-      onPrettier,
     } = this.props;
 
     const useCache = getUseCache(queryContext);
@@ -140,9 +138,6 @@ export class RunButton extends React.PureComponent<RunButtonProps> {
             onClick={onEditContext}
             labelElement={numContextKeys ? pluralIfNeeded(numContextKeys, 'key') : undefined}
           />
-        )}
-        {runeMode && (
-          <MenuItem icon={IconNames.PRINT} text="Pretty print JSON" onClick={onPrettier} />
         )}
       </Menu>
     );

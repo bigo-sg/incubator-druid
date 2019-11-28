@@ -19,13 +19,11 @@
 import { render } from '@testing-library/react';
 import React from 'react';
 
-import { Capabilities } from '../../../utils/capabilities';
-
 import { SupervisorsCard } from './supervisors-card';
 
 describe('supervisors card', () => {
   it('matches snapshot', () => {
-    const supervisorsCard = <SupervisorsCard capabilities={Capabilities.FULL} />;
+    const supervisorsCard = <SupervisorsCard />;
 
     const { container } = render(supervisorsCard);
     expect(container.firstChild).toMatchSnapshot();

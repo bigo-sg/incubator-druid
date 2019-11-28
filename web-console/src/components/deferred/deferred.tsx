@@ -22,6 +22,11 @@ export interface DeferredProps {
   content: () => JSX.Element;
 }
 
-export const Deferred = React.memo(function Deferred(props: DeferredProps) {
-  return props.content();
-});
+export interface DeferredState {}
+
+export class Deferred extends React.PureComponent<DeferredProps, DeferredState> {
+  render(): JSX.Element {
+    const { content } = this.props;
+    return content();
+  }
+}

@@ -19,20 +19,11 @@
 import { render } from '@testing-library/react';
 import React from 'react';
 
-import { JsonInput } from './json-input';
+import { JSONInput } from './json-input';
 
 describe('json input', () => {
-  it('matches snapshot (null)', () => {
-    const jsonCollapse = <JsonInput onChange={() => {}} value={null} />;
-    const { container } = render(jsonCollapse);
-    expect(container.firstChild).toMatchSnapshot();
-  });
-
-  it('matches snapshot (value)', () => {
-    const value = {
-      hello: ['world', { a: 1, b: 2 }],
-    };
-    const jsonCollapse = <JsonInput onChange={() => {}} value={value} />;
+  it('matches snapshot', () => {
+    const jsonCollapse = <JSONInput onChange={() => {}} value={'test'} />;
     const { container } = render(jsonCollapse);
     expect(container.firstChild).toMatchSnapshot();
   });

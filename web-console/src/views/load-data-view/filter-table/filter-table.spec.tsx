@@ -38,7 +38,7 @@ describe('filter table', () => {
         sampleData={sampleData}
         columnFilter=""
         dimensionFilters={[]}
-        selectedFilterName={undefined}
+        selectedFilterIndex={-1}
         onShowGlobalFilter={() => {}}
         onFilterSelect={() => {}}
       />

@@ -28,8 +28,10 @@ export interface ActionIconProps {
   onClick?: () => void;
 }
 
-export const ActionIcon = React.memo(function ActionIcon(props: ActionIconProps) {
-  const { className, icon, onClick } = props;
+export class ActionIcon extends React.PureComponent<ActionIconProps> {
+  render(): JSX.Element {
+    const { className, icon, onClick } = this.props;
 
-  return <Icon className={classNames('action-icon', className)} icon={icon} onClick={onClick} />;
-});
+    return <Icon className={classNames('action-icon', className)} icon={icon} onClick={onClick} />;
+  }
+}

@@ -25,7 +25,7 @@ import { NumberMenuItems } from './number-menu-items';
 describe('number menu', () => {
   const parser = sqlParserFactory(['COUNT']);
 
-  it('matches snapshot when menu is opened for column not inside group by', () => {
+  it('matches snapshot', () => {
     const numberMenu = (
       <NumberMenuItems
         columnName={'added'}
@@ -35,19 +35,6 @@ describe('number menu', () => {
     );
 
     const { container } = render(numberMenu);
-    expect(container).toMatchSnapshot();
-  });
-
-  it('matches snapshot when menu is opened for column inside group by', () => {
-    const numberMenu = (
-      <NumberMenuItems
-        columnName={'added'}
-        parsedQuery={parser(`SELECT added, count(*) as cnt FROM wikipedia GROUP BY 1`)}
-        onQueryChange={() => {}}
-      />
-    );
-
-    const { container } = render(numberMenu);
-    expect(container).toMatchSnapshot();
+    expect(container.firstChild).toMatchSnapshot();
   });
 });

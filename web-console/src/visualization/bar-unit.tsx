@@ -31,19 +31,21 @@ interface BarChartUnitProps {
   offHover?: () => void;
 }
 
-export function BarUnit(props: BarChartUnitProps) {
-  const { x, y, width, height, style, onClick, onHover, offHover } = props;
-  return (
-    <rect
-      className={`bar-chart-unit`}
-      x={x}
-      y={y}
-      width={width}
-      height={height}
-      style={style}
-      onClick={onClick}
-      onMouseOver={onHover}
-      onMouseLeave={offHover}
-    />
-  );
+export class BarUnit extends React.Component<BarChartUnitProps> {
+  render(): JSX.Element {
+    const { x, y, width, height, style, onClick, onHover, offHover } = this.props;
+    return (
+      <rect
+        className={`bar-chart-unit`}
+        x={x}
+        y={y}
+        width={width}
+        height={height}
+        style={style}
+        onClick={onClick}
+        onMouseOver={onHover}
+        onMouseLeave={offHover}
+      />
+    );
+  }
 }

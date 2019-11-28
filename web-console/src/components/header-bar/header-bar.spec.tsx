@@ -19,13 +19,11 @@
 import { shallow } from 'enzyme';
 import React from 'react';
 
-import { Capabilities } from '../../utils/capabilities';
-
 import { HeaderBar } from './header-bar';
 
 describe('header bar', () => {
   it('matches snapshot', () => {
-    const headerBar = shallow(<HeaderBar active={'load-data'} capabilities={Capabilities.FULL} />);
+    const headerBar = shallow(<HeaderBar active={'load-data'} hideLegacy={false} />);
     expect(headerBar).toMatchSnapshot();
   });
 });

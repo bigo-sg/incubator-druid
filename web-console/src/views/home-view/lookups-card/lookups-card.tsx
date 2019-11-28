@@ -22,12 +22,9 @@ import { sum } from 'd3-array';
 import React from 'react';
 
 import { pluralIfNeeded, QueryManager } from '../../../utils';
-import { Capabilities } from '../../../utils/capabilities';
 import { HomeViewCard } from '../home-view-card/home-view-card';
 
-export interface LookupsCardProps {
-  capabilities: Capabilities;
-}
+export interface LookupsCardProps {}
 
 export interface LookupsCardState {
   lookupsCountLoading: boolean;
@@ -37,7 +34,7 @@ export interface LookupsCardState {
 }
 
 export class LookupsCard extends React.PureComponent<LookupsCardProps, LookupsCardState> {
-  private lookupsQueryManager: QueryManager<Capabilities, any>;
+  private lookupsQueryManager: QueryManager<null, any>;
 
   constructor(props: LookupsCardProps, context: any) {
     super(props, context);
@@ -48,17 +45,13 @@ export class LookupsCard extends React.PureComponent<LookupsCardProps, LookupsCa
     };
 
     this.lookupsQueryManager = new QueryManager({
-      processQuery: async capabilities => {
-        if (capabilities.hasCoordinatorAccess()) {
-          const resp = await axios.get('/druid/coordinator/v1/lookups/status');
-          const data = resp.data;
-          const lookupsCount = sum(Object.keys(data).map(k => Object.keys(data[k]).length));
-          return {
-            lookupsCount,
-          };
-        } else {
-          throw new Error(`must have coordinator access`);
-        }
+      processQuery: async () => {
+        const resp = await axios.get('/druid/coordinator/v1/lookups/status');
+        const data = resp.data;
+        const lookupsCount = sum(Object.keys(data).map(k => Object.keys(data[k]).length));
+        return {
+          lookupsCount,
+        };
       },
       onStateChange: ({ result, loading, error }) => {
         this.setState({
@@ -72,8 +65,7 @@ export class LookupsCard extends React.PureComponent<LookupsCardProps, LookupsCa
   }
 
   componentDidMount(): void {
-    const { capabilities } = this.props;
-    this.lookupsQueryManager.runQuery(capabilities);
+    this.lookupsQueryManager.runQuery(null);
   }
 
   componentWillUnmount(): void {

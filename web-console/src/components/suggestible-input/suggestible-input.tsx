@@ -20,7 +20,6 @@ import {
   Button,
   HTMLInputProps,
   InputGroup,
-  Intent,
   Menu,
   MenuItem,
   Popover,
@@ -37,29 +36,19 @@ export interface SuggestionGroup {
 
 export interface SuggestibleInputProps extends HTMLInputProps {
   onValueChange: (newValue: string) => void;
-  onFinalize?: () => void;
   suggestions?: (string | SuggestionGroup)[];
   large?: boolean;
-  intent?: Intent;
 }
 
 export class SuggestibleInput extends React.PureComponent<SuggestibleInputProps> {
-  private lastFocusValue?: string;
-
   constructor(props: SuggestibleInputProps, context: any) {
     super(props, context);
     // this.state = {};
   }
 
-  public handleSuggestionSelect(suggestion: string) {
-    const { onValueChange, onFinalize } = this.props;
-    onValueChange(suggestion);
-    if (onFinalize) onFinalize();
-  }
-
   renderSuggestionsMenu() {
-    const { suggestions } = this.props;
-    if (!suggestions) return;
+    const { suggestions, onValueChange } = this.props;
+    if (!suggestions) return undefined;
 
     return (
       <Menu>
@@ -69,7 +58,7 @@ export class SuggestibleInput extends React.PureComponent<SuggestibleInputProps>
               <MenuItem
                 key={suggestion}
                 text={suggestion}
-                onClick={() => this.handleSuggestionSelect(suggestion)}
+                onClick={() => onValueChange(suggestion)}
               />
             );
           } else {
@@ -79,7 +68,7 @@ export class SuggestibleInput extends React.PureComponent<SuggestibleInputProps>
                   <MenuItem
                     key={suggestion}
                     text={suggestion}
-                    onClick={() => this.handleSuggestionSelect(suggestion)}
+                    onClick={() => onValueChange(suggestion)}
                   />
                 ))}
               </MenuItem>
@@ -91,17 +80,9 @@ export class SuggestibleInput extends React.PureComponent<SuggestibleInputProps>
   }
 
   render(): JSX.Element {
-    const {
-      className,
-      value,
-      defaultValue,
-      onValueChange,
-      onFinalize,
-      onBlur,
-      ...rest
-    } = this.props;
-
+    const { className, value, defaultValue, onValueChange, large, ...rest } = this.props;
     const suggestionsMenu = this.renderSuggestionsMenu();
+
     return (
       <InputGroup
         className={classNames('suggestible-input', className)}
@@ -110,14 +91,6 @@ export class SuggestibleInput extends React.PureComponent<SuggestibleInputProps>
         onChange={(e: any) => {
           onValueChange(e.target.value);
         }}
-        onFocus={(e: any) => {
-          this.lastFocusValue = e.target.value;
-        }}
-        onBlur={(e: any) => {
-          if (onBlur) onBlur(e);
-          if (this.lastFocusValue === e.target.value) return;
-          if (onFinalize) onFinalize();
-        }}
         rightElement={
           suggestionsMenu && (
             <Popover content={suggestionsMenu} position={Position.BOTTOM_RIGHT} autoFocus={false}>
@@ -125,6 +98,7 @@ export class SuggestibleInput extends React.PureComponent<SuggestibleInputProps>
             </Popover>
           )
         }
+        large={large}
         {...rest}
       />
     );

@@ -19,12 +19,12 @@
 import { render } from '@testing-library/react';
 import React from 'react';
 
-import { JsonCollapse } from './json-collapse';
+import { JSONCollapse } from './json-collapse';
 
 describe('json collapse', () => {
   it('matches snapshot', () => {
     const jsonCollapse = (
-      <JsonCollapse buttonText={'test'} stringValue={JSON.stringify({ name: 'test' })} />
+      <JSONCollapse buttonText={'test'} stringValue={JSON.stringify({ name: 'test' })} />
     );
     const { container } = render(jsonCollapse);
     expect(container.firstChild).toMatchSnapshot();

@@ -21,9 +21,8 @@ import { IconNames } from '@blueprintjs/icons';
 import axios from 'axios';
 import React from 'react';
 
-import { ExternalLink, RuleEditor } from '../../components';
+import { RuleEditor } from '../../components';
 import { QueryManager } from '../../utils';
-import { DRUID_DOCS_VERSION } from '../../variables';
 import { SnitchDialog } from '../snitch-dialog/snitch-dialog';
 
 import './retention-dialog.scss';
@@ -183,11 +182,12 @@ export class RetentionDialog extends React.PureComponent<
         <p>
           Druid uses rules to determine what data should be retained in the cluster. The rules are
           evaluated in order from top to bottom. For more information please refer to the{' '}
-          <ExternalLink
-            href={`https://druid.apache.org/docs/${DRUID_DOCS_VERSION}/operations/rule-configuration.html`}
+          <a
+            href="https://druid.apache.org/docs/latest/operations/rule-configuration.html"
+            target="_blank"
           >
             documentation
-          </ExternalLink>
+          </a>
           .
         </p>
         <FormGroup>{(currentRules || []).map(this.renderRule)}</FormGroup>

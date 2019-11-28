@@ -24,7 +24,6 @@ import React from 'react';
 import { AutoForm, ExternalLink } from '../../components';
 import { AppToaster } from '../../singletons/toaster';
 import { getDruidErrorMessage, QueryManager } from '../../utils';
-import { DRUID_DOCS_VERSION } from '../../variables';
 import { SnitchDialog } from '../snitch-dialog/snitch-dialog';
 
 import './coordinator-dynamic-config-dialog.scss';
@@ -127,21 +126,13 @@ export class CoordinatorDynamicConfigDialog extends React.PureComponent<
         <p>
           Edit the coordinator dynamic configuration on the fly. For more information please refer
           to the{' '}
-          <ExternalLink
-            href={`https://druid.apache.org/docs/${DRUID_DOCS_VERSION}/configuration/index.html#dynamic-configuration`}
-          >
+          <ExternalLink href="https://druid.apache.org/docs/latest/configuration/index.html#dynamic-configuration">
             documentation
           </ExternalLink>
           .
         </p>
         <AutoForm
           fields={[
-            {
-              name: 'maxSegmentsToMove',
-              type: 'number',
-              defaultValue: 5,
-              info: <>The maximum number of segments that can be moved at any given time.</>,
-            },
             {
               name: 'balancerComputeThreads',
               type: 'number',
@@ -157,7 +148,6 @@ export class CoordinatorDynamicConfigDialog extends React.PureComponent<
             {
               name: 'emitBalancingStats',
               type: 'boolean',
-              defaultValue: false,
               info: (
                 <>
                   Boolean flag for whether or not we should emit balancing stats. This is an
@@ -168,7 +158,6 @@ export class CoordinatorDynamicConfigDialog extends React.PureComponent<
             {
               name: 'killAllDataSources',
               type: 'boolean',
-              defaultValue: false,
               info: (
                 <>
                   Send kill tasks for ALL dataSources if property{' '}
@@ -217,6 +206,12 @@ export class CoordinatorDynamicConfigDialog extends React.PureComponent<
               ),
             },
             {
+              name: 'maxSegmentsToMove',
+              type: 'number',
+              defaultValue: 5,
+              info: <>The maximum number of segments that can be moved at any given time.</>,
+            },
+            {
               name: 'mergeBytesLimit',
               type: 'size-bytes',
               defaultValue: 524288000,
@@ -261,9 +256,9 @@ export class CoordinatorDynamicConfigDialog extends React.PureComponent<
               type: 'string-array',
               info: (
                 <>
-                  List of historical services to 'decommission'. Coordinator will not assign new
-                  segments to 'decommissioning' services, and segments will be moved away from them
-                  to be placed on non-decommissioning services at the maximum rate specified by{' '}
+                  List of historical servers to 'decommission'. Coordinator will not assign new
+                  segments to 'decommissioning' servers, and segments will be moved away from them
+                  to be placed on non-decommissioning servers at the maximum rate specified by{' '}
                   <Code>decommissioningMaxPercentOfMaxSegmentsToMove</Code>.
                 </>
               ),
@@ -275,15 +270,15 @@ export class CoordinatorDynamicConfigDialog extends React.PureComponent<
               info: (
                 <>
                   The maximum number of segments that may be moved away from 'decommissioning'
-                  services to non-decommissioning (that is, active) services during one Coordinator
+                  servers to non-decommissioning (that is, active) servers during one Coordinator
                   run. This value is relative to the total maximum segment movements allowed during
                   one run which is determined by <Code>maxSegmentsToMove</Code>. If
                   <Code>decommissioningMaxPercentOfMaxSegmentsToMove</Code> is 0, segments will
-                  neither be moved from or to 'decommissioning' services, effectively putting them
-                  in a sort of "maintenance" mode that will not participate in balancing or
-                  assignment by load rules. Decommissioning can also become stalled if there are no
-                  available active services to place the segments. By leveraging the maximum percent
-                  of decommissioning segment movements, an operator can prevent active services from
+                  neither be moved from or to 'decommissioning' servers, effectively putting them in
+                  a sort of "maintenance" mode that will not participate in balancing or assignment
+                  by load rules. Decommissioning can also become stalled if there are no available
+                  active servers to place the segments. By leveraging the maximum percent of
+                  decommissioning segment movements, an operator can prevent active servers from
                   overload by prioritizing balancing, or decrease decommissioning time instead. The
                   value should be between 0 and 100.
                 </>

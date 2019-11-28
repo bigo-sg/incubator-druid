@@ -19,8 +19,6 @@
 import { shallow } from 'enzyme';
 import React from 'react';
 
-import { Capabilities } from '../../utils/capabilities';
-
 import { DatasourcesView } from './datasource-view';
 
 describe('data source view', () => {
@@ -30,7 +28,7 @@ describe('data source view', () => {
         goToQuery={() => {}}
         goToTask={() => null}
         goToSegments={() => {}}
-        capabilities={Capabilities.FULL}
+        noSqlMode={false}
       />,
     );
     expect(dataSourceView).toMatchSnapshot();

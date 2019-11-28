@@ -20,13 +20,10 @@ import { IconNames } from '@blueprintjs/icons';
 import axios from 'axios';
 import React from 'react';
 
-import { pluralIfNeeded, queryDruidSql, QueryManager } from '../../../utils';
-import { Capabilities } from '../../../utils/capabilities';
+import { pluralIfNeeded, QueryManager } from '../../../utils';
 import { HomeViewCard } from '../home-view-card/home-view-card';
 
-export interface SupervisorsCardProps {
-  capabilities: Capabilities;
-}
+export interface SupervisorsCardProps {}
 
 export interface SupervisorsCardState {
   supervisorCountLoading: boolean;
@@ -39,7 +36,7 @@ export class SupervisorsCard extends React.PureComponent<
   SupervisorsCardProps,
   SupervisorsCardState
 > {
-  private supervisorQueryManager: QueryManager<Capabilities, any>;
+  private supervisorQueryManager: QueryManager<null, any>;
 
   constructor(props: SupervisorsCardProps, context: any) {
     super(props, context);
@@ -50,27 +47,15 @@ export class SupervisorsCard extends React.PureComponent<
     };
 
     this.supervisorQueryManager = new QueryManager({
-      processQuery: async capabilities => {
-        if (capabilities.hasSql()) {
-          return (await queryDruidSql({
-            query: `SELECT
-  COUNT(*) FILTER (WHERE "suspended" = 0) AS "runningSupervisorCount",
-  COUNT(*) FILTER (WHERE "suspended" = 1) AS "suspendedSupervisorCount"
-FROM sys.supervisors`,
-          }))[0];
-        } else if (capabilities.hasOverlordAccess()) {
-          const resp = await axios.get('/druid/indexer/v1/supervisor?full');
-          const data = resp.data;
-          const runningSupervisorCount = data.filter((d: any) => d.spec.suspended === false).length;
-          const suspendedSupervisorCount = data.filter((d: any) => d.spec.suspended === true)
-            .length;
-          return {
-            runningSupervisorCount,
-            suspendedSupervisorCount,
-          };
-        } else {
-          throw new Error(`must have SQL or overlord access`);
-        }
+      processQuery: async () => {
+        const resp = await axios.get('/druid/indexer/v1/supervisor?full');
+        const data = resp.data;
+        const runningSupervisorCount = data.filter((d: any) => d.spec.suspended === false).length;
+        const suspendedSupervisorCount = data.filter((d: any) => d.spec.suspended === true).length;
+        return {
+          runningSupervisorCount,
+          suspendedSupervisorCount,
+        };
       },
       onStateChange: ({ result, loading, error }) => {
         this.setState({
@@ -84,9 +69,7 @@ FROM sys.supervisors`,
   }
 
   componentDidMount(): void {
-    const { capabilities } = this.props;
-
-    this.supervisorQueryManager.runQuery(capabilities);
+    this.supervisorQueryManager.runQuery(null);
   }
 
   componentWillUnmount(): void {
@@ -104,7 +87,7 @@ FROM sys.supervisors`,
     return (
       <HomeViewCard
         className="supervisors-card"
-        href={'#ingestion'}
+        href={'#tasks'}
         icon={IconNames.LIST_COLUMNS}
         title={'Supervisors'}
         loading={supervisorCountLoading}

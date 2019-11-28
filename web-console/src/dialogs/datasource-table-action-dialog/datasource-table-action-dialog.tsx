@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import React, { useState } from 'react';
+import React from 'react';
 
 import { DatasourceColumnsTable } from '../../components/datasource-columns-table/datasource-columns-table';
 import { BasicAction } from '../../utils/basic-action';
@@ -28,34 +28,48 @@ interface DatasourceTableActionDialogProps {
   onClose: () => void;
 }
 
-export const DatasourceTableActionDialog = React.memo(function DatasourceTableActionDialog(
-  props: DatasourceTableActionDialogProps,
-) {
-  const { onClose, datasourceId, actions } = props;
-  const [activeTab, setActiveTab] = useState('columns');
+interface DatasourceTableActionDialogState {
+  activeTab: 'columns';
+}
 
-  const taskTableSideButtonMetadata: SideButtonMetaData[] = [
-    {
-      icon: 'list-columns',
-      text: 'Columns',
-      active: activeTab === 'columns',
-      onClick: () => setActiveTab('columns'),
-    },
-  ];
+export class DatasourceTableActionDialog extends React.PureComponent<
+  DatasourceTableActionDialogProps,
+  DatasourceTableActionDialogState
+> {
+  constructor(props: DatasourceTableActionDialogProps) {
+    super(props);
+    this.state = {
+      activeTab: 'columns',
+    };
+  }
 
-  return (
-    <TableActionDialog
-      sideButtonMetadata={taskTableSideButtonMetadata}
-      onClose={onClose}
-      title={`Datasource: ${datasourceId}`}
-      actions={actions}
-    >
-      {activeTab === 'columns' && (
-        <DatasourceColumnsTable
-          datasourceId={datasourceId ? datasourceId : ''}
-          downloadFilename={`datasource-dimensions-${datasourceId}.json`}
-        />
-      )}
-    </TableActionDialog>
-  );
-});
+  render(): React.ReactNode {
+    const { onClose, datasourceId, actions } = this.props;
+    const { activeTab } = this.state;
+
+    const taskTableSideButtonMetadata: SideButtonMetaData[] = [
+      {
+        icon: 'list-columns',
+        text: 'Columns',
+        active: activeTab === 'columns',
+        onClick: () => this.setState({ activeTab: 'columns' }),
+      },
+    ];
+
+    return (
+      <TableActionDialog
+        sideButtonMetadata={taskTableSideButtonMetadata}
+        onClose={onClose}
+        title={`Datasource: ${datasourceId}`}
+        actions={actions}
+      >
+        {activeTab === 'columns' && (
+          <DatasourceColumnsTable
+            datasourceId={datasourceId ? datasourceId : ''}
+            downloadFilename={`datasource-dimensions-${datasourceId}.json`}
+          />
+        )}
+      </TableActionDialog>
+    );
+  }
+}

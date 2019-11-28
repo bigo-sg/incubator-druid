@@ -30,31 +30,35 @@ export interface ShowValueProps {
   jsonValue?: string;
 }
 
-export const ShowValue = React.memo(function ShowValue(props: ShowValueProps) {
-  const { endpoint, downloadFilename, jsonValue } = props;
-  return (
-    <div className="show-json">
-      <div className="top-actions">
-        <ButtonGroup className="right-buttons">
-          {downloadFilename && (
-            <Button
-              text="Save"
-              minimal
-              onClick={() => (jsonValue ? downloadFile(jsonValue, 'json', downloadFilename) : null)}
-            />
-          )}
-          {endpoint && (
-            <Button
-              text="View raw"
-              minimal
-              onClick={() => window.open(UrlBaser.base(endpoint), '_blank')}
-            />
-          )}
-        </ButtonGroup>
+export class ShowValue extends React.PureComponent<ShowValueProps> {
+  render(): JSX.Element {
+    const { endpoint, downloadFilename, jsonValue } = this.props;
+    return (
+      <div className="show-json">
+        <div className="top-actions">
+          <ButtonGroup className="right-buttons">
+            {downloadFilename && (
+              <Button
+                text="Save"
+                minimal
+                onClick={() =>
+                  jsonValue ? downloadFile(jsonValue, 'json', downloadFilename) : null
+                }
+              />
+            )}
+            {endpoint && (
+              <Button
+                text="View raw"
+                minimal
+                onClick={() => window.open(UrlBaser.base(endpoint), '_blank')}
+              />
+            )}
+          </ButtonGroup>
+        </div>
+        <div className="main-area">
+          <TextArea readOnly value={jsonValue} />
+        </div>
       </div>
-      <div className="main-area">
-        <TextArea readOnly value={jsonValue} />
-      </div>
-    </div>
-  );
-});
+    );
+  }
+}

@@ -21,11 +21,10 @@ import axios from 'axios';
 import React from 'react';
 
 import { pluralIfNeeded, queryDruidSql, QueryManager } from '../../../utils';
-import { Capabilities } from '../../../utils/capabilities';
 import { HomeViewCard } from '../home-view-card/home-view-card';
 
 export interface DatasourcesCardProps {
-  capabilities: Capabilities;
+  noSqlMode: boolean;
 }
 
 export interface DatasourcesCardState {
@@ -38,7 +37,7 @@ export class DatasourcesCard extends React.PureComponent<
   DatasourcesCardProps,
   DatasourcesCardState
 > {
-  private datasourceQueryManager: QueryManager<Capabilities, any>;
+  private datasourceQueryManager: QueryManager<boolean, any>;
 
   constructor(props: DatasourcesCardProps, context: any) {
     super(props, context);
@@ -48,19 +47,16 @@ export class DatasourcesCard extends React.PureComponent<
     };
 
     this.datasourceQueryManager = new QueryManager({
-      processQuery: async capabilities => {
+      processQuery: async noSqlMode => {
         let datasources: string[];
-        if (capabilities.hasSql()) {
+        if (!noSqlMode) {
           datasources = await queryDruidSql({
             query: `SELECT datasource FROM sys.segments GROUP BY 1`,
           });
-        } else if (capabilities.hasCoordinatorAccess()) {
+        } else {
           const datasourcesResp = await axios.get('/druid/coordinator/v1/datasources');
           datasources = datasourcesResp.data;
-        } else {
-          throw new Error(`must have SQL or coordinator access`);
         }
-
         return datasources.length;
       },
       onStateChange: ({ result, loading, error }) => {
@@ -74,9 +70,9 @@ export class DatasourcesCard extends React.PureComponent<
   }
 
   componentDidMount(): void {
-    const { capabilities } = this.props;
+    const { noSqlMode } = this.props;
 
-    this.datasourceQueryManager.runQuery(capabilities);
+    this.datasourceQueryManager.runQuery(noSqlMode);
   }
 
   componentWillUnmount(): void {

@@ -106,17 +106,11 @@ export class QueryInput extends React.PureComponent<QueryInputProps, QueryInputS
       },
       getDocTooltip: (item: any) => {
         if (item.meta === 'function') {
-          item.docHTML = QueryInput.completerToHtml(item);
-        }
-      },
-    });
-  }
-
-  static completerToHtml(item: any) {
-    return `
+          const functionName = item.caption.slice(0, -2);
+          item.docHTML = `
 <div class="function-doc">
   <div class="function-doc-name">
-    <b>${escape(item.caption)}</b>
+    <b>${escape(functionName)}</b>
   </div>
   <hr />
   <div>
@@ -129,6 +123,9 @@ export class QueryInput extends React.PureComponent<QueryInputProps, QueryInputS
   </div>
   <div>${escape(item.description)}</div>
 </div>`;
+        }
+      },
+    });
   }
 
   static getDerivedStateFromProps(props: QueryInputProps, state: QueryInputState) {

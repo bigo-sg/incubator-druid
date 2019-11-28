@@ -21,6 +21,8 @@ const path = require('path');
 const postcssPresetEnv = require('postcss-preset-env');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
+const ALWAYS_BABEL = false;
+
 const { version } = require('./package.json');
 
 function friendlyErrorFormatter(e) {
@@ -38,15 +40,7 @@ module.exports = env => {
   };
 
   const mode = process.env.NODE_ENV === 'production' ? 'production' : 'development';
-  const useBabel = process.env.babel || mode === 'production';
-  console.log(`Webpack running in ${mode} mode. ${useBabel ? 'Will' : 'Wont'} use babel.`);
-
-  function babelTest(s) {
-    // https://github.com/zloirock/core-js/issues/514
-    if (s.includes('/node_modules/core-js/')) return false;
-    return /\.m?js$/.test(s);
-  }
-
+  console.log(`Webpack running in ${mode} mode`);
   return {
     mode: mode,
     devtool: 'hidden-source-map',
@@ -104,7 +98,7 @@ module.exports = env => {
           ],
         },
         {
-          test: useBabel ? babelTest : /^xxx_nothing_will_match_$/,
+          test: ALWAYS_BABEL || mode === 'production' ? /\.m?js$/ : /^xxx$/,
           use: {
             loader: 'babel-loader',
           },
@@ -120,8 +114,7 @@ module.exports = env => {
                 ident: 'postcss',
                 plugins: () => [
                   postcssPresetEnv({
-                    autoprefixer: { grid: "no-autoplace" },
-                    browsers: ['> 1%', 'last 3 versions', 'Firefox ESR', 'Opera 12.1', 'ie 11'],
+                    browsers: ['> 1%', 'last 3 versions', 'Firefox ESR', 'Opera 12.1'],
                   }),
                 ],
               },
