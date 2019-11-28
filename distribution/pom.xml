@@ -296,20 +296,20 @@
                                     </arguments>
                                 </configuration>
                             </execution>
-                            <execution>
-                                <id>check-licenses</id>
-                                <phase>test</phase>
-                                <goals>
-                                    <goal>exec</goal>
-                                </goals>
-                                <configuration>
-                                    <executable>${project.basedir}/bin/check-licenses.py</executable>
-                                    <arguments>
-                                        <argument>${project.parent.basedir}/licenses.yaml</argument>
-                                        <argument>${project.basedir}/target/license-reports</argument>
-                                    </arguments>
-                                </configuration>
-                            </execution>
+<!--                            <execution>-->
+<!--                                <id>check-licenses</id>-->
+<!--                                <phase>test</phase>-->
+<!--                                <goals>-->
+<!--                                    <goal>exec</goal>-->
+<!--                                </goals>-->
+<!--                                <configuration>-->
+<!--                                    <executable>${project.basedir}/bin/check-licenses.py</executable>-->
+<!--                                    <arguments>-->
+<!--                                        <argument>${project.parent.basedir}/licenses.yaml</argument>-->
+<!--                                        <argument>${project.basedir}/target/license-reports</argument>-->
+<!--                                    </arguments>-->
+<!--                                </configuration>-->
+<!--                            </execution>-->
                         </executions>
                     </plugin>
                     <plugin>
