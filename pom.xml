@@ -179,6 +179,7 @@
         <module>extensions-contrib/influxdb-emitter</module>
         <module>extensions-contrib/bigo-extensions</module>
         <module>extensions-contrib/unique</module>
+        <module>extensions-contrib/accurate-cardinality</module>
         <!-- distribution packaging -->
         <module>distribution</module>
     </modules>
