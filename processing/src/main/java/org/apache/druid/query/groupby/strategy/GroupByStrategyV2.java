@@ -223,8 +223,8 @@ public class GroupByStrategyV2 implements GroupByStrategy
     // The having spec shouldn't be passed down, so we need to convey the existing limit push down status
     context.put(GroupByQueryConfig.CTX_KEY_APPLY_LIMIT_PUSH_DOWN, query.isApplyLimitPushDown());
 
-    // Always request array result rows when passing the query downstream.
-    context.put(GroupByQueryConfig.CTX_KEY_ARRAY_RESULT_ROWS, true);
+    // jsq: Always not request array result rows when passing the query downstream.
+    context.put(GroupByQueryConfig.CTX_KEY_ARRAY_RESULT_ROWS, false);
 
     final GroupByQuery newQuery = new GroupByQuery(
         query.getDataSource(),

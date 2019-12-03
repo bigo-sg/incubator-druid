@@ -133,8 +133,8 @@ public class GroupByStrategyV1 implements GroupByStrategy
                             .put(GroupByQueryConfig.CTX_KEY_STRATEGY, GroupByStrategySelector.STRATEGY_V1)
                             .put("finalize", false)
 
-                            // Always request array result rows when passing the query down.
-                            .put(GroupByQueryConfig.CTX_KEY_ARRAY_RESULT_ROWS, true)
+                            // jsq: Always not request array result rows when passing the query down.
+                            .put(GroupByQueryConfig.CTX_KEY_ARRAY_RESULT_ROWS, false)
 
                             // Set sort to false avoids unnecessary sorting while merging results. we only need to sort
                             // in the end when returning results to user. (note this is only respected by groupBy v1)
