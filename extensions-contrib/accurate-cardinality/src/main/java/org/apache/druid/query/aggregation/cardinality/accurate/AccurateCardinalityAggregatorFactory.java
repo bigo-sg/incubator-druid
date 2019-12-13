@@ -25,12 +25,8 @@ import com.google.common.base.Function;
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import org.apache.druid.java.util.common.IAE;
 import org.apache.druid.java.util.common.StringUtils;
-import org.apache.druid.query.aggregation.Aggregator;
-import org.apache.druid.query.aggregation.AggregatorFactory;
-import org.apache.druid.query.aggregation.AggregatorUtil;
-import org.apache.druid.query.aggregation.BufferAggregator;
+import org.apache.druid.query.aggregation.*;
 import org.apache.druid.query.aggregation.cardinality.accurate.collector.LongBitmapCollector;
 import org.apache.druid.query.aggregation.cardinality.accurate.collector.LongBitmapCollectorFactory;
 import org.apache.druid.query.aggregation.cardinality.accurate.collector.LongRoaringBitmapCollectorFactory;
@@ -39,9 +35,9 @@ import org.apache.druid.query.dimension.DimensionSpec;
 import org.apache.druid.segment.ColumnSelectorFactory;
 import org.apache.druid.segment.ColumnValueSelector;
 import org.apache.druid.segment.NilColumnValueSelector;
-import org.apache.druid.segment.column.ColumnCapabilities;
 import org.apache.druid.segment.column.ValueType;
 
+import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
 import java.util.Comparator;
 import java.util.List;
@@ -50,55 +46,95 @@ import java.util.List;
 public class AccurateCardinalityAggregatorFactory extends AggregatorFactory
 {
   private static final LongBitmapCollectorFactory DEFAULT_BITMAP_FACTORY = new LongRoaringBitmapCollectorFactory();
+  private static final String DEFAULT_NAMESPACE = "hdid";
+  private static final String DEFAULT_OPENONEID = "false";
 
   private final String name;
   private final DimensionSpec field;
   private final LongBitmapCollectorFactory longBitmapCollectorFactory;
+  private final String nameSpace;
+  private final String openOneId;
 
   @JsonCreator
   public AccurateCardinalityAggregatorFactory(
       @JsonProperty("name") String name,
       @JsonProperty("field") final DimensionSpec field,
+      @Nullable @JsonProperty("nameSpace") String nameSpace,
+      @Nullable @JsonProperty("openOneId") String openOneId,
       @JsonProperty("longBitmapCollectorFactory") LongBitmapCollectorFactory longBitmapCollectorFactory
   )
   {
     this.name = name;
     this.field = field;
+    this.nameSpace = nameSpace == null
+                    ? DEFAULT_NAMESPACE
+                    : nameSpace;
+    this.openOneId = openOneId == null
+                    ? DEFAULT_OPENONEID
+                    : openOneId;
     this.longBitmapCollectorFactory = longBitmapCollectorFactory == null
                                       ? DEFAULT_BITMAP_FACTORY
                                       : longBitmapCollectorFactory;
+    VariableConfig.setNameSpace(this.nameSpace);
+    VariableConfig.setDataType(this.openOneId);
   }
 
   public AccurateCardinalityAggregatorFactory(
       String name,
-      DimensionSpec field
+      DimensionSpec field,
+      String nameSpace,
+      String openOneId
   )
   {
-    this(name, field, DEFAULT_BITMAP_FACTORY);
+    this(name, field, nameSpace, openOneId,  DEFAULT_BITMAP_FACTORY);
+  }
+
+  public AccurateCardinalityAggregatorFactory(
+          String name,
+          DimensionSpec field
+  )
+  {
+    this(name, field, null, null,  DEFAULT_BITMAP_FACTORY);
   }
 
   public AccurateCardinalityAggregatorFactory(
       String name,
-      String field
+      String field,
+      String nameSpace,
+      String openOneId
   )
   {
-    this(name, field, DEFAULT_BITMAP_FACTORY);
+    this(name, field, nameSpace, openOneId, DEFAULT_BITMAP_FACTORY);
   }
 
 
   public AccurateCardinalityAggregatorFactory(
       String name,
       String field,
+      String nameSpace,
+      String openOneId,
       LongBitmapCollectorFactory longBitmapCollectorFactory
   )
   {
-    this(name, new DefaultDimensionSpec(field, field, ValueType.LONG), longBitmapCollectorFactory);
+    this(name, new DefaultDimensionSpec(field, field, ValueType.LONG), nameSpace, openOneId, longBitmapCollectorFactory);
   }
 
   @JsonProperty
   public DimensionSpec getField()
   {
     return field;
+  }
+
+  @JsonProperty
+  public String getNameSpace()
+  {
+    return nameSpace;
+  }
+
+  @JsonProperty
+  public String getOpenOneId()
+  {
+    return openOneId;
   }
 
   @JsonProperty
@@ -118,25 +154,6 @@ public class AccurateCardinalityAggregatorFactory extends AggregatorFactory
     if (field == null || field.getDimension() == null) {
       return new NoopAccurateCardinalityAggregator(longBitmapCollectorFactory, onHeap);
     }
-    ColumnCapabilities capabilities = columnFactory.getColumnCapabilities(field.getDimension());
-
-    if (capabilities != null) {
-      ValueType type = capabilities.getType();
-      switch (type) {
-        case LONG:
-          return new LongAccurateCardinalityAggregator(
-              columnFactory.makeColumnValueSelector(field.getDimension()),
-              longBitmapCollectorFactory,
-              onHeap
-          );
-        default:
-          throw new IAE(
-              "Cannot create accurate cardinality %s for invalid column type [%s]",
-              onHeap ? "aggregator" : "buffer aggregator",
-              type
-          );
-      }
-    } else {
       ColumnValueSelector columnValueSelector = columnFactory.makeColumnValueSelector(field.getDimension());
       if (columnValueSelector instanceof NilColumnValueSelector) {
         return new NoopAccurateCardinalityAggregator(longBitmapCollectorFactory, onHeap);
@@ -146,7 +163,6 @@ public class AccurateCardinalityAggregatorFactory extends AggregatorFactory
           longBitmapCollectorFactory,
           onHeap
       );
-    }
   }
 
   @Override
@@ -188,6 +204,12 @@ public class AccurateCardinalityAggregatorFactory extends AggregatorFactory
   }
 
   @Override
+  public AggregateCombiner makeAggregateCombiner()
+  {
+    return new BitmapAggregatorCombiner(longBitmapCollectorFactory);
+  }
+
+  @Override
   public List<AggregatorFactory> getRequiredColumns()
   {
     return Lists.transform(
@@ -197,7 +219,7 @@ public class AccurateCardinalityAggregatorFactory extends AggregatorFactory
           @Override
           public AggregatorFactory apply(DimensionSpec input)
           {
-            return new AccurateCardinalityAggregatorFactory(input.getOutputName(), input, longBitmapCollectorFactory);
+            return new AccurateCardinalityAggregatorFactory(input.getOutputName(), input, nameSpace, openOneId, longBitmapCollectorFactory);
           }
         }
     );
@@ -282,12 +304,14 @@ public class AccurateCardinalityAggregatorFactory extends AggregatorFactory
     AccurateCardinalityAggregatorFactory factory = (AccurateCardinalityAggregatorFactory) o;
     return Objects.equal(name, factory.name) &&
            Objects.equal(field, factory.field) &&
+            Objects.equal(nameSpace, factory.nameSpace) &&
+            Objects.equal(openOneId, factory.openOneId) &&
            Objects.equal(longBitmapCollectorFactory, factory.longBitmapCollectorFactory);
   }
 
   @Override
   public int hashCode()
   {
-    return Objects.hashCode(name, field, longBitmapCollectorFactory);
+    return Objects.hashCode(name, field, nameSpace, openOneId, longBitmapCollectorFactory);
   }
 }

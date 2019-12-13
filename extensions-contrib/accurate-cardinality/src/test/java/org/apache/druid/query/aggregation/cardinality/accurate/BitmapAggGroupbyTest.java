@@ -151,6 +151,8 @@ public class BitmapAggGroupbyTest
     assertAggregatorFactorySerde(new AccurateCardinalityAggregatorFactory(
         "name",
         "fieldName",
+            null,
+            null,
         new LongRoaringBitmapCollectorFactory()
     ));
   }
@@ -173,16 +175,22 @@ public class BitmapAggGroupbyTest
     final AccurateCardinalityAggregatorFactory factory1 = new AccurateCardinalityAggregatorFactory(
         "name",
         "fieldName",
+            null,
+            null,
         collectorFactory
     );
     final AccurateCardinalityAggregatorFactory factory2 = new AccurateCardinalityAggregatorFactory(
         "name",
         "fieldName",
+            null,
+            null,
         collectorFactory
     );
     final AccurateCardinalityAggregatorFactory factory3 = new AccurateCardinalityAggregatorFactory(
         "name",
         "fieldName1",
+            null,
+            null,
         collectorFactory
     );
     Assert.assertTrue(Arrays.equals(factory1.getCacheKey(), factory2.getCacheKey()));

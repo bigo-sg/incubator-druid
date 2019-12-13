@@ -84,7 +84,7 @@ public class UniqueAggregatorFactory extends AggregatorFactory
   }
 
   @Override
-  public Aggregator factorize(ColumnSelectorFactory metricFactory)  //要实现
+  public Aggregator factorize(ColumnSelectorFactory metricFactory)
   {
     return new UniqueBuildAggregator(metricFactory.makeColumnValueSelector(getFieldName()), useSortOr);
   }
@@ -102,7 +102,7 @@ public class UniqueAggregatorFactory extends AggregatorFactory
   }
 
   @Override
-  public ImmutableRoaringBitmap combine(Object lhs, Object rhs)  //要实现
+  public ImmutableRoaringBitmap combine(Object lhs, Object rhs)
   {
     if (rhs == null) {
       return (ImmutableRoaringBitmap) lhs;
@@ -152,7 +152,7 @@ public class UniqueAggregatorFactory extends AggregatorFactory
   @Override
   public Integer finalizeComputation(Object object)
   {
-    return ((ImmutableRoaringBitmap) object).getCardinality();
+    return ((ImmutableRoaringBitmap) object).getCardinality();  //Returns the number of distinct integers added to the bitmap (e.g., number of bits set)
   }
 
   @Override

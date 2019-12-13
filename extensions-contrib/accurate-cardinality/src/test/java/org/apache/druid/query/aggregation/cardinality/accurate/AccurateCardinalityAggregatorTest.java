@@ -490,18 +490,24 @@ public class AccurateCardinalityAggregatorTest
     strAggregatorFactory = new AccurateCardinalityAggregatorFactory(
         "billy",
         dimSpec1,
+            null,
+            null,
         roaringBitmapCollectorFactory
     );
 
     longAggregatorFactory2 = new AccurateCardinalityAggregatorFactory(
         "UV2",
         dimSpec2,
+            null,
+            null,
         roaringBitmapCollectorFactory
     );
 
     longAggregatorFactory3 = new AccurateCardinalityAggregatorFactory(
         "UV3",
         dimSpec3,
+            null,
+            null,
         roaringBitmapCollectorFactory
     );
 
@@ -670,6 +676,8 @@ public class AccurateCardinalityAggregatorTest
     AccurateCardinalityAggregatorFactory expectedFactory = new AccurateCardinalityAggregatorFactory(
         "UV",
         "UV",
+            null,
+            null,
         roaringBitmapCollectorFactory
     );
 

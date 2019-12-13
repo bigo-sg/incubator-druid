@@ -51,6 +51,9 @@ public class ExtensionsConfig
   @JsonProperty
   private LinkedHashSet<String> loadList;
 
+  @JsonProperty
+  private String oneIdUrl = "http://oneid.bigo.sg:8013/info_id";
+
   public boolean searchCurrentClassloader()
   {
     return searchCurrentClassloader;
@@ -86,6 +89,11 @@ public class ExtensionsConfig
     return loadList;
   }
 
+  public String getOneIdUrl() {
+    return oneIdUrl;
+  }
+
+
   @Override
   public String toString()
   {
@@ -97,6 +105,7 @@ public class ExtensionsConfig
            ", hadoopContainerDruidClasspath='" + hadoopContainerDruidClasspath + '\'' +
            ", addExtensionsToHadoopContainer=" + addExtensionsToHadoopContainer +
            ", loadList=" + loadList +
+           ", oneIdUrl=" + oneIdUrl +
            '}';
   }
 }
