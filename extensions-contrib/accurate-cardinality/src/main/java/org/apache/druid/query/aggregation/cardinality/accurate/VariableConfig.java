@@ -7,7 +7,7 @@ package org.apache.druid.query.aggregation.cardinality.accurate;
  */
 public class VariableConfig {
   public static String nameSpace;
-  public static String dataType;
+  public static String openOneId;
 
   public static void setNameSpace(String name)
   {
@@ -18,12 +18,12 @@ public class VariableConfig {
     return nameSpace;
   }
 
-  public static void setDataType(String type)
+  public static void setOpenOneId(String open)
   {
-    dataType = type;
+    openOneId = open;
   }
-  public static String getDataType()
+  public static String getOpenOneId()
   {
-    return dataType;
+    return openOneId;
   }
 }

@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Function;
 import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import org.apache.druid.java.util.common.StringUtils;
@@ -46,7 +47,6 @@ import java.util.List;
 public class AccurateCardinalityAggregatorFactory extends AggregatorFactory
 {
   private static final LongBitmapCollectorFactory DEFAULT_BITMAP_FACTORY = new LongRoaringBitmapCollectorFactory();
-  private static final String DEFAULT_NAMESPACE = "hdid";
   private static final String DEFAULT_OPENONEID = "false";
 
   private final String name;
@@ -66,9 +66,7 @@ public class AccurateCardinalityAggregatorFactory extends AggregatorFactory
   {
     this.name = name;
     this.field = field;
-    this.nameSpace = nameSpace == null
-                    ? DEFAULT_NAMESPACE
-                    : nameSpace;
+    this.nameSpace = Preconditions.checkNotNull(nameSpace, "nameSpace can not be null");
     this.openOneId = openOneId == null
                     ? DEFAULT_OPENONEID
                     : openOneId;
@@ -76,7 +74,7 @@ public class AccurateCardinalityAggregatorFactory extends AggregatorFactory
                                       ? DEFAULT_BITMAP_FACTORY
                                       : longBitmapCollectorFactory;
     VariableConfig.setNameSpace(this.nameSpace);
-    VariableConfig.setDataType(this.openOneId);
+    VariableConfig.setOpenOneId(this.openOneId);
   }
 
   public AccurateCardinalityAggregatorFactory(

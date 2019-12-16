@@ -175,7 +175,7 @@ public class LongRoaringBitmapCollectorComplexMetricSerde extends ComplexMetricS
         final String objectStr = object.toString();
         LongRoaringBitmapCollector collector = (LongRoaringBitmapCollector) longBitmapCollectorFactory.makeEmptyCollector();
 
-        if (VariableConfig.getDataType().equals("false")) {
+        if (VariableConfig.getOpenOneId().equals("false")) {
           collector.add(Long.parseLong(objectStr));
         } else {
           Long resuiltId;
