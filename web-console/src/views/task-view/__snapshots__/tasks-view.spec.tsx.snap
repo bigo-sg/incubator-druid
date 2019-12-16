@@ -369,6 +369,47 @@ exports[`tasks view matches snapshot 1`] = `
             Status
           </Blueprint3.Button>
         </Blueprint3.ButtonGroup>
+        <HTMLSelect
+          onChange={[Function]}
+          value={100}
+        >
+          <option
+            key="100"
+            value="100"
+          >
+            100
+          </option>
+          <option
+            key="1000"
+            value="1000"
+          >
+            1000
+          </option>
+          <option
+            key="10000"
+            value="10000"
+          >
+            1w
+          </option>
+          <option
+            key="50000"
+            value="50000"
+          >
+            5w
+          </option>
+          <option
+            key="100000"
+            value="100000"
+          >
+            10w
+          </option>
+          <option
+            key="500000"
+            value="500000"
+          >
+            50w
+          </option>
+        </HTMLSelect>
         <RefreshButton
           localStorageKey="task-refresh-rate"
           onRefresh={[Function]}
