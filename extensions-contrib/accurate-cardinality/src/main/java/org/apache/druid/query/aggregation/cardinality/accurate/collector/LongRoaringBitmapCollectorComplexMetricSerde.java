@@ -258,7 +258,7 @@ public class LongRoaringBitmapCollectorComplexMetricSerde extends ComplexMetricS
 
     JsonNode result = doGet(EXTENSIONS_CONFIG.getOneIdUrl(), params, "UTF-8");
     String id = result.get("id") == null? "0": result.get("id").asText();
-    if (id.equals("0")) { LOG.error("Get Id failed from oneId server! Return '0'"); }
+    if (id.equals("0")) { LOG.error(" Highly likely get Id failed from oneId server! id = '0' "); }
     return id;
   }
 
