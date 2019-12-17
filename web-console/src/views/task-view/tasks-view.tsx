@@ -20,6 +20,7 @@ import {
   Alert,
   Button,
   ButtonGroup,
+  HTMLSelect,
   Intent,
   Label,
   Menu,
@@ -108,6 +109,7 @@ export interface TasksViewState {
   tasksError?: string;
 
   taskFilter: Filter[];
+  taskPageEntries: 100;
   supervisorFilter: Filter[];
 
   groupTasksBy?: 'group_id' | 'type' | 'datasource' | 'status';
@@ -191,18 +193,6 @@ export class TasksView extends React.PureComponent<TasksViewProps, TasksViewStat
     FAILED: 1,
   };
 
-  static TASK_SQL = `SELECT
-  "task_id", "group_id", "type", "datasource", "created_time", "location", "duration", "error_msg",
-  CASE WHEN "status" = 'RUNNING' THEN "runner_status" ELSE "status" END AS "status",
-  (
-    CASE WHEN "status" = 'RUNNING' THEN
-     (CASE "runner_status" WHEN 'RUNNING' THEN 4 WHEN 'PENDING' THEN 3 ELSE 2 END)
-    ELSE 1
-    END
-  ) AS "rank"
-FROM sys.tasks
-ORDER BY "rank" DESC, "created_time" DESC`;
-
   constructor(props: TasksViewProps, context: any) {
     super(props, context);
 
@@ -223,6 +213,7 @@ ORDER BY "rank" DESC, "created_time" DESC`;
 
       tasksLoading: true,
       taskFilter: taskFilter,
+      taskPageEntries: 100,
       supervisorFilter: supervisorFilter,
 
       supervisorSpecDialogOpen: props.openDialog === 'supervisor',
@@ -257,7 +248,7 @@ ORDER BY "rank" DESC, "created_time" DESC`;
       processQuery: async noSqlMode => {
         if (!noSqlMode) {
           return await queryDruidSql({
-            query: TasksView.TASK_SQL,
+            query: this.getQuerySql(),
           });
         } else {
           const taskEndpoints: string[] = [
@@ -317,6 +308,23 @@ ORDER BY "rank" DESC, "created_time" DESC`;
     this.supervisorQueryManager.terminate();
     this.taskQueryManager.terminate();
   }
+
+  private getQuerySql = () => {
+    return (
+      `SELECT
+  "task_id", "group_id", "type", "datasource", "created_time", "location", "duration", "error_msg",
+  CASE WHEN "status" = 'RUNNING' THEN "runner_status" ELSE "status" END AS "status",
+  (
+    CASE WHEN "status" = 'RUNNING' THEN
+     (CASE "runner_status" WHEN 'RUNNING' THEN 4 WHEN 'PENDING' THEN 3 ELSE 2 END)
+    ELSE 1
+    END
+  ) AS "rank"
+FROM sys.tasks
+ORDER BY "rank" DESC, "created_time" DESC
+ LIMIT ` + this.state.taskPageEntries
+    );
+  };
 
   private closeSpecDialogs = () => {
     this.setState({
@@ -1027,7 +1035,7 @@ ORDER BY "rank" DESC, "created_time" DESC`;
           <MenuItem
             icon={IconNames.APPLICATION}
             text="View SQL query for table"
-            onClick={() => goToQuery(TasksView.TASK_SQL)}
+            onClick={() => goToQuery(this.getQuerySql())}
           />
         )}
       </Menu>
@@ -1043,12 +1051,13 @@ ORDER BY "rank" DESC, "created_time" DESC`;
   }
 
   render(): JSX.Element {
-    const { goToLoadData } = this.props;
+    const { goToLoadData, noSqlMode } = this.props;
     const {
       groupTasksBy,
       supervisorSpecDialogOpen,
       taskSpecDialogOpen,
       alertErrorMsg,
+      taskPageEntries,
       taskTableActionDialogId,
       taskTableActionDialogActions,
       supervisorTableActionDialogId,
@@ -1058,6 +1067,14 @@ ORDER BY "rank" DESC, "created_time" DESC`;
       hiddenTaskColumns,
     } = this.state;
 
+    const pageEntries = {
+      100: '100',
+      1000: '1000',
+      10000: '1w',
+      50000: '5w',
+      100000: '10w',
+      500000: '50w',
+    };
     const submitSupervisorMenu = (
       <Menu>
         <MenuItem
@@ -1158,6 +1175,20 @@ ORDER BY "rank" DESC, "created_time" DESC`;
                   Status
                 </Button>
               </ButtonGroup>
+              <HTMLSelect
+                value={taskPageEntries}
+                onChange={(e: any) => {
+                  this.setState({ taskPageEntries: e.currentTarget.value }, () => {
+                    this.taskQueryManager.runQuery(noSqlMode);
+                  });
+                }}
+              >
+                {Object.entries(pageEntries).map(([k, v]) => (
+                  <option key={k} value={k}>
+                    {v}
+                  </option>
+                ))}
+              </HTMLSelect>
               <RefreshButton
                 localStorageKey={LocalStorageKeys.TASKS_REFRESH_RATE}
                 onRefresh={auto => this.taskQueryManager.rerunLastQuery(auto)}
