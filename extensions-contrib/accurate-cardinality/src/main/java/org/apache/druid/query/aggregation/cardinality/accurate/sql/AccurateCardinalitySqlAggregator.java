@@ -176,8 +176,8 @@ public class AccurateCardinalitySqlAggregator implements SqlAggregator
           SqlKind.OTHER_FUNCTION,
           ReturnTypes.explicit(SqlTypeName.BIGINT),
           null,
-          OperandTypes.NUMERIC,
-          SqlFunctionCategory.NUMERIC,
+          OperandTypes.ANY,
+          SqlFunctionCategory.STRING,
           false,
           false
       );
