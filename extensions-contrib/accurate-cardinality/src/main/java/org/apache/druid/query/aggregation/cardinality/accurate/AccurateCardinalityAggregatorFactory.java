@@ -96,6 +96,14 @@ public class AccurateCardinalityAggregatorFactory extends AggregatorFactory
   }
 
   public AccurateCardinalityAggregatorFactory(
+          String name,
+          String field
+  )
+  {
+    this(name, field, "", null,  DEFAULT_BITMAP_FACTORY);
+  }
+
+  public AccurateCardinalityAggregatorFactory(
       String name,
       String field,
       String nameSpace,
