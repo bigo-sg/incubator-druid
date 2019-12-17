@@ -92,7 +92,7 @@ public class AccurateCardinalityAggregatorFactory extends AggregatorFactory
           DimensionSpec field
   )
   {
-    this(name, field, null, null,  DEFAULT_BITMAP_FACTORY);
+    this(name, field, "", "false",  DEFAULT_BITMAP_FACTORY);
   }
 
   public AccurateCardinalityAggregatorFactory(
