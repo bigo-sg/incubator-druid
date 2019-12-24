@@ -69,7 +69,7 @@ public class LongRoaringBitmapCollectorComplexMetricSerde extends ComplexMetricS
   private final static Logger LOG = LoggerFactory.getLogger(LongRoaringBitmapCollectorComplexMetricSerde.class);
   private LongBitmapCollectorFactory longBitmapCollectorFactory;
   private static Cache<String, String> cache =
-          CacheBuilder.newBuilder().initialCapacity(10000).maximumSize(20000).build();
+          CacheBuilder.newBuilder().initialCapacity(15000).maximumSize(25000).build();
   private static DefaultHttpClient defaultHttpClient = new DefaultHttpClient();
   private static AutoRetryHttpClient httpClient;
   static {
@@ -175,16 +175,15 @@ public class LongRoaringBitmapCollectorComplexMetricSerde extends ComplexMetricS
         final String objectStr = object.toString();
         LongRoaringBitmapCollector collector = (LongRoaringBitmapCollector) longBitmapCollectorFactory.makeEmptyCollector();
 
-        if (VariableConfig.getOpenOneId().equals("false")) {
+        if (VariableConfig.getOpenOneId(metricName).equals("false")) {
           collector.add(Long.parseLong(objectStr));
         } else {
           Long resuiltId;
           try {
-            resuiltId = Long.valueOf(cache.get(objectStr, new Callable<String>() {
+            resuiltId = Long.valueOf(cache.get(objectStr + VariableConfig.getNameSpace(metricName), new Callable<String>() {
               @Override
               public String call() {
-                return getId(VariableConfig.getNameSpace(), objectStr);
-//                return getId("hdid", objectStr);
+                return getId(VariableConfig.getNameSpace(metricName), objectStr + VariableConfig.getNameSpace(metricName));
               }
             }));
           } catch (Exception e) {

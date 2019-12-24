@@ -66,15 +66,17 @@ public class AccurateCardinalityAggregatorFactory extends AggregatorFactory
   {
     this.name = name;
     this.field = field;
-    this.nameSpace = Preconditions.checkNotNull(nameSpace, "nameSpace can not be null");
+    this.nameSpace = openOneId == null
+                    ? "noop"
+                    : Preconditions.checkNotNull(nameSpace, "nameSpace can not be null");
     this.openOneId = openOneId == null
                     ? DEFAULT_OPENONEID
                     : openOneId;
     this.longBitmapCollectorFactory = longBitmapCollectorFactory == null
                                       ? DEFAULT_BITMAP_FACTORY
                                       : longBitmapCollectorFactory;
-    VariableConfig.setNameSpace(this.nameSpace);
-    VariableConfig.setOpenOneId(this.openOneId);
+    VariableConfig.setNameSpace(field.getDimension(), this.nameSpace);
+    VariableConfig.setOpenOneId(field.getDimension(), this.openOneId);
   }
 
   public AccurateCardinalityAggregatorFactory(
@@ -92,7 +94,7 @@ public class AccurateCardinalityAggregatorFactory extends AggregatorFactory
           DimensionSpec field
   )
   {
-    this(name, field, "", null,  DEFAULT_BITMAP_FACTORY);
+    this(name, field, VariableConfig.getNameSpace(field.getDimension()), VariableConfig.getOpenOneId(field.getDimension()),  DEFAULT_BITMAP_FACTORY);
   }
 
   public AccurateCardinalityAggregatorFactory(
@@ -100,7 +102,7 @@ public class AccurateCardinalityAggregatorFactory extends AggregatorFactory
           String field
   )
   {
-    this(name, field, "", null,  DEFAULT_BITMAP_FACTORY);
+    this(name, field, VariableConfig.getNameSpace(field), VariableConfig.getOpenOneId(field),  DEFAULT_BITMAP_FACTORY);
   }
 
   public AccurateCardinalityAggregatorFactory(
@@ -206,7 +208,7 @@ public class AccurateCardinalityAggregatorFactory extends AggregatorFactory
   @Override
   public AggregatorFactory getCombiningFactory()
   {
-    return new BitmapAggregatorFactory(name, name);
+    return new AccurateCardinalityAggregatorFactory(name, name);
   }
 
   @Override
