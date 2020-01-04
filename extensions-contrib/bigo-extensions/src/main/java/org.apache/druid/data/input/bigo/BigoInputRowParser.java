@@ -195,9 +195,6 @@ public class BigoInputRowParser implements InputRowParser<Object>
   private List<Map<String, Object>> parseString(@Nullable String inputString)
   {
     initializeParser();
-    if (flumeEventOrNot) {
-      inputString = "{\"rip\"" + inputString.split("\"rip\"")[1];
-    }
 
     boolean isBadJson = false;
     ObjectMapper objectMapper = new ObjectMapper();
@@ -206,6 +203,9 @@ public class BigoInputRowParser implements InputRowParser<Object>
     List<Map<String, Object>> returnValue = new ArrayList<>();
     JsonNode document;
     try {
+      if (flumeEventOrNot) {
+        inputString = "{\"rip\"" + inputString.split("\"rip\"")[1];
+      }
       document = objectMapper.readValue(inputString, JsonNode.class);
       JsonNode flattenNode = document.findPath(flattenField);
       Iterator<JsonNode> elements = flattenNode.elements();
